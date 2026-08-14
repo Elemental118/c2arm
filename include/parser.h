@@ -9,7 +9,6 @@ enum node_type {
 	NODE_PROG,
 	NODE_BIN,
 	NODE_FUNC,
-	NODE_VAR,
 	NODE_INT_LIT,
 	NODE_VAR_NAME,
 };

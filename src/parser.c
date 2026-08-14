@@ -30,6 +30,36 @@ static void expect(struct parser *p, enum token_type t) {
 	}
 }
 
+static struct node *node_create(int children_num, enum node_type nt)
+{
+	struct node *n = malloc(sizeof(*n));
+	n->type = nt;
+	if (children_num) {
+		n->children = malloc(children_num * sizeof(*n->children));
+	}
+	return n;
+}
+
+struct node *parse_var_decl(struct parser *p)
+{
+	struct node *parent = node_create(2, NODE_BIN);
+	parent->op = '=';
+	expect(p, TOKEN_INT);
+	struct node *left = node_create(0, NODE_VAR_NAME);
+
+	parent->children[0] = left;
+	strcpy(left->name, peek(p).name);
+	expect(p, TOKEN_ID);
+	expect(p, TOKEN_ASSIGN);
+
+	struct node *right = node_create(0, NODE_INT_LIT);
+	parent->children[1] = right;
+	right->val = peek(p).val;
+	expect(p, TOKEN_INT_LIT);
+	expect(p, TOKEN_SEMI);
+	return parent;
+}
+
 struct parser *parser_create_and_load(struct token *tokens, int token_num)
 {
 	struct parser *p = malloc(sizeof(*p));
