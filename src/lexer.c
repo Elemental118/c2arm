@@ -2,26 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer.h"
 #include "types.h"
 
-#define MAX_FILE_LEN 1000
-#define MAX_TOKENS 100
-#define MAX_ID_LEN 32
-
-enum token_type {
-	TOKEN_ERR,
-
-	TOKEN_INT,
-	TOKEN_VOID,
-	TOKEN_ID,
-	TOKEN_LPAREN,
-	TOKEN_RPAREN,
-	TOKEN_LBRACE,
-	TOKEN_RBRACE,
-	TOKEN_SEMI,
-	TOKEN_ASSIGN,
-	TOKEN_INT_LIT,
-	TOKEN_EOF
+struct lexer {
+	u8 *prog;
+	int pos;
 };
 
 const char *token_names[] = {
@@ -39,22 +25,27 @@ const char *token_names[] = {
     [TOKEN_EOF] = "TOKEN_EOF"
 };
 
-struct token {
-	enum token_type type;
-	union {
-		char name[MAX_ID_LEN];
-		int val;
-	};
-};
-
-struct lexer {
-	u8 *prog;
-	int pos;
-};
-
-bool is_in_id(u8 c)
+static bool is_in_id(u8 c)
 {
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_');
+}
+
+struct lexer *lexer_create_and_load(const char *filename, int prog_size) {
+	struct lexer *l = calloc(sizeof(struct lexer), 1);
+	l->prog = calloc(prog_size, sizeof(*l->prog));
+	FILE *f;
+	if (!(f = fopen(filename, "r"))) {
+		return NULL;
+	};
+
+	fread(l->prog, sizeof(u8), prog_size, f);
+	fclose(f);
+	return l;
+}
+
+void lexer_free(struct lexer *l) {
+	free(l->prog);
+	free(l);
 }
 
 struct token *next_token(struct lexer *l)
@@ -121,44 +112,4 @@ struct token *next_token(struct lexer *l)
 
 	l->pos++;
 	return t;
-}
-
-int main(int argc, char **argv)
-{
-	if (argc != 2) {
-		fprintf(stderr, "usage: ./compiler <file>\n");
-		exit(1);
-	}
-
-	// Read file
-	struct lexer *l = calloc(sizeof(struct lexer), 1);
-	l->prog = calloc(MAX_FILE_LEN, sizeof(*l->prog));
-
-	FILE *f;
-	if (!(f = fopen(argv[1], "r"))) {
-		fprintf(stderr, "error: invalid file\n");
-		exit(1);
-	};
-
-	fread(l->prog, sizeof(u8), MAX_FILE_LEN, f);
-	fclose(f);
-
-	struct token *tokens = malloc(MAX_TOKENS * sizeof(*tokens));
-	for (int i = 0; ; i++) {
-		tokens[i] = *next_token(l);
-		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
-			break;
-		}
-	}
-
-	for (int i = 0; ;i ++) {
-		printf("%s\n", token_names[tokens[i].type]);
-		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
-			break;
-		}
-	}
-
-	free(tokens);
-	free(l->prog);
-	free(l);
 }
