@@ -7,6 +7,8 @@
 #define MAX_TOKENS 100
 
 enum token_type {
+	TOKEN_NONE,
+
 	TOKEN_INT,
 	TOKEN_VOID,
 	TOKEN_ID,
@@ -28,6 +30,20 @@ struct token {
 	};
 };
 
+struct lexer {
+	char *prog;
+	int pos;
+};
+
+struct token next_token(struct lexer *l)
+{
+	// Stuff to make it compile
+	struct token t;
+	t.type = TOKEN_NONE;
+	t.val = l->pos;
+	return t;
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2) {
@@ -36,16 +52,21 @@ int main(int argc, char **argv)
 	}
 
 	// Read file
-	u8 prog[MAX_FILE_LEN];
+	struct lexer *l = malloc(sizeof(struct lexer));
+	l->prog = calloc(MAX_FILE_LEN, sizeof(*l->prog));
+
 	FILE *f;
 	if (!(f = fopen(argv[1], "r"))) {
 		fprintf(stderr, "error: invalid file\n");
 		exit(1);
 	};
-	fread(prog, sizeof(u8), MAX_FILE_LEN, f);
+
+	fread(l->prog, sizeof(u8), MAX_FILE_LEN, f);
 	fclose(f);
 
 	// struct token tokens[MAX_TOKENS];
 
-	printf("%s\n", prog);
+	printf("%s\n", l->prog);
+	free(l->prog);
+	free(l);
 }
