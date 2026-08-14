@@ -161,6 +161,7 @@ int main(int argc, char **argv)
 	}
 	printf("\n\n");
 
+	free(tokens);
 	free(l->prog);
 	free(l);
 }
