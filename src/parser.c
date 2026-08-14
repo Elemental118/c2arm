@@ -6,6 +6,8 @@
 #include "parser.h"
 #include "types.h"
 
+#define MAX_STMTS 100
+
 struct parser {
 	struct token *tokens;
 	int pos;
@@ -33,7 +35,7 @@ static void expect(struct parser *p, enum token_type t)
 
 static struct node *node_create(int children_num, enum node_type nt)
 {
-	struct node *n = malloc(sizeof(*n));
+	struct node *n = calloc(1, sizeof(*n));
 	n->type = nt;
 	if (children_num) {
 		n->children = malloc(children_num * sizeof(*n->children));
@@ -41,7 +43,7 @@ static struct node *node_create(int children_num, enum node_type nt)
 	return n;
 }
 
-struct node *parse_var_decl(struct parser *p)
+static struct node *parse_var_decl(struct parser *p)
 {
 	struct node *parent = node_create(2, NODE_BIN);
 	parent->op = '=';
@@ -58,6 +60,26 @@ struct node *parse_var_decl(struct parser *p)
 	right->val = peek(p).val;
 	expect(p, TOKEN_INT_LIT);
 	expect(p, TOKEN_SEMI);
+	parent->children_num = 2;
+	return parent;
+}
+
+static struct node *parse_function_decl(struct parser *p)
+{
+	expect(p, TOKEN_VOID);
+	struct node *parent = node_create(MAX_STMTS, NODE_FUNC);
+	strcpy(parent->name, peek(p).name);
+	expect(p, TOKEN_ID);
+	expect(p, TOKEN_LPAREN);
+	expect(p, TOKEN_VOID);
+	expect(p, TOKEN_RPAREN);
+	expect(p, TOKEN_LBRACE);
+
+	for (int i = 0; peek(p).type != TOKEN_RBRACE; i++) {
+		parent->children[i] = parse_var_decl(p);
+		parent->children_num++;
+	}
+	advance(p);
 	return parent;
 }
 
