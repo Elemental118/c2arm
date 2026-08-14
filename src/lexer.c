@@ -151,15 +151,12 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("%s\n", l->prog);
-	printf("\n\n\n");
 	for (int i = 0; ;i ++) {
 		printf("%s\n", token_names[tokens[i].type]);
 		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
 			break;
 		}
 	}
-	printf("\n\n");
 
 	free(tokens);
 	free(l->prog);
