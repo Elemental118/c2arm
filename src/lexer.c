@@ -1,5 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 
+#include "types.h"
+
+#define MAX_FILE_LEN 1000
 #define MAX_TOKENS 100
 
 enum token_type {
@@ -24,8 +28,24 @@ struct token {
 	};
 };
 
-int main(void)
+int main(int argc, char **argv)
 {
-	struct token tokens[MAX_TOKENS];
-	printf("Hello world\n");
+	if (argc != 2) {
+		fprintf(stderr, "usage: ./compiler <file>\n");
+		exit(1);
+	}
+
+	// Read file
+	u8 prog[MAX_FILE_LEN];
+	FILE *f;
+	if (!(f = fopen(argv[1], "r"))) {
+		fprintf(stderr, "error: invalid file\n");
+		exit(1);
+	};
+	fread(prog, sizeof(u8), MAX_FILE_LEN, f);
+	fclose(f);
+
+	// struct token tokens[MAX_TOKENS];
+
+	printf("%s\n", prog);
 }
