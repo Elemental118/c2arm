@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -Wall -Wextra -Wpedantic -Werror -std=c23 -Iinclude -O3 -mcpu=native -flto
+CFLAGS = -Wall -Wextra -Wpedantic -Werror -std=c23 -Iinclude -O3 -flto
 
 TARGET = compiler
 
