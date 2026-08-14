@@ -24,6 +24,21 @@ enum token_type {
 	TOKEN_EOF
 };
 
+const char *token_names[] = {
+    [TOKEN_ERR] = "TOKEN_ERR",
+    [TOKEN_INT] = "TOKEN_INT",
+    [TOKEN_VOID] = "TOKEN_VOID",
+    [TOKEN_ID] = "TOKEN_ID",
+    [TOKEN_LPAREN] = "TOKEN_LPAREN",
+    [TOKEN_RPAREN] = "TOKEN_RPAREN",
+    [TOKEN_LBRACE] = "TOKEN_LBRACE",
+    [TOKEN_RBRACE] = "TOKEN_RBRACE",
+    [TOKEN_SEMI] = "TOKEN_SEMI",
+    [TOKEN_ASSIGN] = "TOKEN_ASSIGN",
+    [TOKEN_INT_LIT] = "TOKEN_INT_LIT",
+    [TOKEN_EOF] = "TOKEN_EOF"
+};
+
 struct token {
 	enum token_type type;
 	union {
@@ -139,11 +154,13 @@ int main(int argc, char **argv)
 	printf("%s\n", l->prog);
 	printf("\n\n\n");
 	for (int i = 0; ;i ++) {
-		printf("%d\n", tokens[i].type);
+		printf("%s\n", token_names[tokens[i].type]);
 		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
 			break;
 		}
 	}
+	printf("\n\n");
+
 	free(l->prog);
 	free(l);
 }
