@@ -64,7 +64,7 @@ static struct node *parse_var_decl(struct parser *p)
 	return parent;
 }
 
-static struct node *parse_function_decl(struct parser *p)
+static struct node *parse_func_decl(struct parser *p)
 {
 	expect(p, TOKEN_VOID);
 	struct node *parent = node_create(MAX_STMTS, NODE_FUNC);
@@ -80,6 +80,16 @@ static struct node *parse_function_decl(struct parser *p)
 		parent->children_num++;
 	}
 	advance(p);
+	return parent;
+}
+
+struct node *parse_program(struct parser *p)
+{
+	struct node *parent = node_create(MAX_STMTS, NODE_PROG);
+	for (int i = 0; peek(p).type != TOKEN_EOF; i++) {
+		parent->children[i] = parse_func_decl(p);
+		parent->children_num++;
+	}
 	return parent;
 }
 
