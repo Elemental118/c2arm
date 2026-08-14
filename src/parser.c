@@ -128,7 +128,7 @@ static void ast_print_helper(struct node *n, int depth)
 		printf("VAR %s\n", n->name);
 		break;
 	case NODE_INT_LIT:
-		printf("INT %s\n", n->name);
+		printf("INT %d\n", n->val);
 		break;
 	case NODE_ERR:
 	default:
