@@ -11,3 +11,9 @@ TOKEN_INT_LIT
 TOKEN_SEMI
 TOKEN_RBRACE
 TOKEN_EOF
+
+PROG
+    FUNC main
+        BIN =
+            VAR x
+            INT 4
