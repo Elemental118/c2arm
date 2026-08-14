@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "parser.h"
 #include "lexer.h"
 #include "types.h"
 
@@ -9,11 +10,13 @@
 
 int main(int argc, char **argv)
 {
+	// INIT
 	if (argc != 2) {
 		fprintf(stderr, "usage: ./compiler <file>\n");
 		exit(1);
 	}
 
+	// LEXING
 	struct lexer *l = lexer_create_and_load(argv[1], MAX_FILE_LEN);
 	if (!l) {
 		fprintf(stderr, "error: invalid file\n");
@@ -41,6 +44,9 @@ int main(int argc, char **argv)
 		}
 	}
 
+	// PARSING
+	struct parser *p = parser_create_and_load(tokens, MAX_TOKENS);
+	parser_free(p);
+	
 	free(tokens);
-	lexer_free(l);
 }
