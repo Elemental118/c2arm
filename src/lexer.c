@@ -30,7 +30,8 @@ static bool is_in_id(u8 c)
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_');
 }
 
-struct lexer *lexer_create_and_load(const char *filename, int prog_size) {
+struct lexer *lexer_create_and_load(const char *filename, int prog_size)
+{
 	struct lexer *l = calloc(sizeof(struct lexer), 1);
 	l->prog = calloc(prog_size, sizeof(*l->prog));
 	FILE *f;
@@ -43,7 +44,8 @@ struct lexer *lexer_create_and_load(const char *filename, int prog_size) {
 	return l;
 }
 
-void lexer_free(struct lexer *l) {
+void lexer_free(struct lexer *l)
+{
 	free(l->prog);
 	free(l);
 }
