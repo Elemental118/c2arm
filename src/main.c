@@ -43,9 +43,12 @@ int main(int argc, char **argv)
 			break;
 		}
 	}
-
+	printf("\n");
+	
 	// PARSING
 	struct parser *p = parser_create_and_load(tokens, MAX_TOKENS);
+	struct node *ast = parse_program(p);
+	ast_print(ast);
 	parser_free(p);
 	
 	free(tokens);

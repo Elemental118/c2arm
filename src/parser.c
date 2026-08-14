@@ -90,12 +90,13 @@ struct node *parse_program(struct parser *p)
 		parent->children[i] = parse_func_decl(p);
 		parent->children_num++;
 	}
+	advance(p);
 	return parent;
 }
 
 struct parser *parser_create_and_load(struct token *tokens, int token_num)
 {
-	struct parser *p = malloc(sizeof(*p));
+	struct parser *p = calloc(1, sizeof(*p));
 	p->tokens = malloc(token_num * sizeof(*p->tokens));
 	memcpy(p->tokens, tokens, token_num * sizeof(*p->tokens));
 	return p;
@@ -105,4 +106,43 @@ void parser_free(struct parser *p)
 {
 	free(p->tokens);
 	free(p);
+}
+
+static void ast_print_helper(struct node *n, int depth)
+{
+	for (int i = 0; i < depth; i++) {
+		printf(" ");
+	}
+
+	switch (n->type) {
+	case NODE_PROG:
+		printf("PROG\n");
+		break;
+	case NODE_FUNC:
+		printf("FUNC %s\n", n->name);
+		break;
+	case NODE_BIN:
+		printf("BIN %c\n", n->op);
+		break;
+	case NODE_VAR_NAME:
+		printf("VAR %s\n", n->name);
+		break;
+	case NODE_INT_LIT:
+		printf("INT %s\n", n->name);
+		break;
+	case NODE_ERR:
+	default:
+		printf("UNKNOWN\n");
+		return;	
+	}
+
+	depth += 4;
+	for (int i = 0; i < n->children_num; i++) {
+		ast_print_helper(n->children[i], depth);
+	}
+}
+
+void ast_print(struct node *n)
+{
+	ast_print_helper(n, 0);
 }
