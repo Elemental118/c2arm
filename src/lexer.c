@@ -48,7 +48,7 @@ struct token {
 };
 
 struct lexer {
-	char *prog;
+	u8 *prog;
 	int pos;
 };
 
@@ -64,7 +64,7 @@ struct token *next_token(struct lexer *l)
 		l->pos++;
 	}
 
-	char c = l->prog[l->pos];
+	u8 c = l->prog[l->pos];
 	switch (c) {
 	case '(':
 		t->type = TOKEN_LPAREN;
