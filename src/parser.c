@@ -21,7 +21,8 @@ static struct token advance(struct parser *p)
 	return p->tokens[p->pos++];
 }
 
-static void expect(struct parser *p, enum token_type t) {
+static void expect(struct parser *p, enum token_type t)
+{
 	if (peek(p).type == t) {
 		advance(p);
 	} else {
