@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
 	struct token *tokens = malloc(MAX_TOKENS * sizeof(*tokens));
 	for (int i = 0; i < MAX_TOKENS; i++) {
-		tokens[i] = *next_token(l);
+		tokens[i] = next_token(l);
 		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
 			break;
 		}
@@ -30,6 +30,12 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < MAX_TOKENS; i ++) {
 		printf("%s\n", token_names[tokens[i].type]);
+		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
+			break;
+		}
+	}
+
+	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
 			break;
 		}

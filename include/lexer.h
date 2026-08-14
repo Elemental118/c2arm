@@ -32,6 +32,6 @@ extern const char *token_names[];
 struct lexer *lexer_create_and_load(const char *filename, int prog_size);
 void lexer_free(struct lexer *l);
 
-struct token *next_token(struct lexer *l);
+struct token next_token(struct lexer *l);
 
 #endif

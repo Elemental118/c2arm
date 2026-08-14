@@ -48,9 +48,9 @@ void lexer_free(struct lexer *l) {
 	free(l);
 }
 
-struct token *next_token(struct lexer *l)
+struct token next_token(struct lexer *l)
 {
-	struct token *t = malloc(sizeof(*t));
+	struct token t;
 	while (l->prog[l->pos] == ' ' || l->prog[l->pos] == '\n' || l->prog[l->pos] == '\r' || l->prog[l->pos] == '\t') {
 		l->pos++;
 	}
@@ -58,55 +58,55 @@ struct token *next_token(struct lexer *l)
 	u8 c = l->prog[l->pos];
 	switch (c) {
 	case '(':
-		t->type = TOKEN_LPAREN;
+		t.type = TOKEN_LPAREN;
 		break;
 	
 	case ')':
-		t->type = TOKEN_RPAREN;
+		t.type = TOKEN_RPAREN;
 		break;
 	
 	case '{':
-		t->type = TOKEN_LBRACE;
+		t.type = TOKEN_LBRACE;
 		break;
 	
 	case '}':
-		t->type = TOKEN_RBRACE;
+		t.type = TOKEN_RBRACE;
 		break;
 	
 	case ';':
-		t->type = TOKEN_SEMI;
+		t.type = TOKEN_SEMI;
 		break;
 	
 	case '=':
-		t->type = TOKEN_ASSIGN;
+		t.type = TOKEN_ASSIGN;
 		break;
 	
 	case '\0':
-		t->type = TOKEN_EOF;
+		t.type = TOKEN_EOF;
 		break;
 	
 	default:
 		if ('0' <= c && c <= '9') {
-			t->type = TOKEN_INT_LIT;
-			t->val = c - '0';
+			t.type = TOKEN_INT_LIT;
+			t.val = c - '0';
 			break;
 		}
 		int original = l->pos;
 		while (is_in_id(c)) {
-			t->name[l->pos++ - original] = c;
+			t.name[l->pos++ - original] = c;
 			c = l->prog[l->pos];
 		}
 		if (original == l->pos) {
-			t->type = TOKEN_ERR;
+			t.type = TOKEN_ERR;
 			break;
 		}
-		t->name[l->pos-- - original] = '\0';
-		if (!strcmp(t->name, "int")) {
-			t->type = TOKEN_INT;
-		} else if (!strcmp(t->name, "void")) {
-			t->type = TOKEN_VOID;
+		t.name[l->pos-- - original] = '\0';
+		if (!strcmp(t.name, "int")) {
+			t.type = TOKEN_INT;
+		} else if (!strcmp(t.name, "void")) {
+			t.type = TOKEN_VOID;
 		} else {
-			t->type = TOKEN_ID;
+			t.type = TOKEN_ID;
 		}
 	}
 
