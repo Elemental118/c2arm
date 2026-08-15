@@ -65,7 +65,13 @@ static void codegen_stmt(struct codegen *cg, struct instr *instr)
 		fprintf(stderr, "too many assembly instructions\n");
 		exit(1);
 	}
-	sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d", "mov", regtable_store(cg, instr->dest_name), instr->op1_val);
+	if (instr->op1_kind == OPERAND_LITERAL) {
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d",
+			"mov", regtable_store(cg, instr->dest_name), instr->op1_val);
+	} else if (instr->op1_kind == OPERAND_NAME) {
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+			"mov", regtable_store(cg, instr->dest_name), regtable_store(cg, instr->op1_name));
+	}
 }
 
 static void codegen_func_stmt(struct codegen *cg, struct instr *instr)
