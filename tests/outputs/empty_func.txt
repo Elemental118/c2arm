@@ -9,3 +9,5 @@ TOKEN_EOF
 
 PROG
     VOID FUNC main
+
+VOID FUNC main

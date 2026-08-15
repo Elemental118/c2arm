@@ -19,3 +19,6 @@ PROG
         ASSIGN
             INT VAR x
             INT 7
+
+VOID FUNC main
+    INT x = 7

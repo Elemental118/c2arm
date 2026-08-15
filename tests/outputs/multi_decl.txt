@@ -25,3 +25,7 @@ PROG
         ASSIGN
             INT VAR b
             INT 2
+
+VOID FUNC main
+    INT a = 1
+    INT b = 2

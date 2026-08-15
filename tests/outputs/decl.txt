@@ -17,3 +17,6 @@ PROG
         ASSIGN
             INT VAR x
             INT 4
+
+VOID FUNC main
+    INT x = 4
