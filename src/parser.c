@@ -13,9 +13,14 @@ struct parser {
 	int pos;
 };
 
+static struct token peek_multiple(struct parser *p, int i)
+{
+	return p->tokens[p->pos + i - 1];
+}
+
 static struct token peek(struct parser *p)
 {
-	return p->tokens[p->pos];
+	return peek_multiple(p, 1);
 }
 
 static struct token advance(struct parser *p)
