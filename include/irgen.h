@@ -12,7 +12,9 @@ enum instr_type {
 	INSTR_ERR,
 	
 	INSTR_ASSIGN,
-	INSTR_COMPUTE
+	INSTR_COMPUTE,
+	INSTR_FUNC_START,
+	INSTR_FUNC_END
 };
 
 struct instr {

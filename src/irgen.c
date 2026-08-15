@@ -13,15 +13,34 @@ struct irgen {
 	int pos;
 };
 
-static void irgen_stmt(struct irgen *i, struct node *n)
+static void irgen_stmt(struct irgen *ir, struct node *n)
 {
-	if (i->pos == MAX_INSTRS) {
+	if (ir->pos == MAX_INSTRS) {
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
 	}
-	i->instrs[i->pos].i_type = INSTR_ASSIGN;
-	i->instrs[i->pos].d_type = n->children[0]->d_type;
-	strcpy(i->instrs[i->pos].dest_name, n->children[0]->name);
-	i->instrs[i->pos].op1_kind = OPERAND_LITERAL;
-	i->instrs[i->pos++].op1_val = n->children[1]->val;
+	ir->instrs[ir->pos].i_type = INSTR_ASSIGN;
+	ir->instrs[ir->pos].d_type = n->children[0]->d_type;
+	strcpy(ir->instrs[ir->pos].dest_name, n->children[0]->name);
+	ir->instrs[ir->pos].op1_kind = OPERAND_LITERAL;
+	ir->instrs[ir->pos++].op1_val = n->children[1]->val;
+}
+
+static void irgen_func(struct irgen *ir, struct node *n)
+{
+	if (ir->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	ir->instrs[ir->pos].i_type = INSTR_FUNC_START;
+	ir->instrs[ir->pos].d_type = n->d_type;
+	strcpy(ir->instrs[ir->pos++].dest_name, n->name);
+	for (int i = 0; i < n->children_num; i++) {
+		irgen_stmt(ir, n->children[i]);
+	}
+	if (ir->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	ir->instrs[ir->pos++].i_type = INSTR_FUNC_END;
 }
