@@ -3,6 +3,8 @@
 
 #include "lexer.h"
 
+#define MAX_SYMS 10
+
 enum node_type {
 	NODE_ERR,
 

@@ -8,9 +8,20 @@
 
 #define MAX_STMTS 100
 
+struct sym {
+	char name[32];
+	enum data_type type;
+};
+
+struct symtable {
+	struct sym table[MAX_SYMS];
+	int pos;
+};
+
 struct parser {
 	struct token *tokens;
 	int pos;
+	struct symtable symtable;
 };
 
 static struct token peek_multiple(struct parser *p, int i)
