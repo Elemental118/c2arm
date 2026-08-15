@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "irgen.h"
 #include "parser.h"
 #include "lexer.h"
 #include "types.h"
@@ -49,9 +50,15 @@ int main(int argc, char **argv)
 	// PARSING
 	struct parser *p = parser_create_and_load(tokens, MAX_TOKENS);
 	struct node *ast = parse_program(p);
-	ast_print(ast);
-	ast_free(ast);
 	parser_free(p);
-	
+	ast_print(ast);
 	free(tokens);
+
+	// IRGEN
+	struct irgen *irg = irgen_create_and_load();
+	struct instr *ir = irgen_prog(irg, ast);
+	irgen_free(irg);
+	ast_free(ast);
+
+	instr_free(ir);
 }

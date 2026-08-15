@@ -9,7 +9,7 @@
 #define MAX_INSTRS 100
 
 struct irgen {
-	struct instr instrs[MAX_INSTRS];
+	struct instr *instrs;
 	int pos;
 };
 
@@ -45,7 +45,7 @@ static void irgen_func(struct irgen *ir, struct node *n)
 	ir->instrs[ir->pos++].i_type = INSTR_FUNC_END;
 }
 
-void irgen_prog(struct irgen *ir, struct node *ast)
+struct instr *irgen_prog(struct irgen *ir, struct node *ast)
 {
 	for (int i = 0; i < ast->children_num; i++) {
 		irgen_func(ir, ast->children[i]);
@@ -55,15 +55,26 @@ void irgen_prog(struct irgen *ir, struct node *ast)
 		exit(1);
 	}
 	ir->instrs[ir->pos++].i_type = INSTR_EOF;
+	struct instr *instrs = malloc(ir->pos * sizeof(*instrs));
+	memcpy(instrs, ir->instrs, ir->pos * sizeof(*instrs));
+	return instrs;
+
+}
+
+void instr_free(struct instr *instrs)
+{
+	free(instrs);
 }
 
 struct irgen *irgen_create_and_load(void)
 {
 	struct irgen *ir = calloc(1, sizeof(*ir));
+	ir->instrs = malloc(MAX_INSTRS * sizeof(*ir->instrs));
 	return ir;
 }
 
 void irgen_free(struct irgen *ir)
 {
+	free(ir->instrs);
 	free(ir);
 }
