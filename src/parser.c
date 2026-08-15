@@ -61,7 +61,8 @@ static void symtable_store(struct symtable *s, char *name, enum data_type type)
 		fprintf(stderr, "duplicate symbol %s\n", name);
 		exit(1);
 	}
-	strcpy(s->table[s->pos].name, name);
+	strncpy(s->table[s->pos].name, name, MAX_ID_LEN - 1);
+	s->table[s->pos].name[MAX_ID_LEN - 1] = '\0';
 	s->table[s->pos++].type = type;
 }
 
