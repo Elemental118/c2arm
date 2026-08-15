@@ -20,3 +20,6 @@ PROG
 
 VOID FUNC main
     INT x = 4
+
+main:
+	mov    w9, #4

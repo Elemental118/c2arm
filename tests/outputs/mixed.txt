@@ -22,3 +22,6 @@ PROG
 
 VOID FUNC main
     INT x = 7
+
+main:
+	mov    w9, #7

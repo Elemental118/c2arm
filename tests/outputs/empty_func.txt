@@ -11,3 +11,5 @@ PROG
     VOID FUNC main
 
 VOID FUNC main
+
+main:

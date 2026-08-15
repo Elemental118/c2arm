@@ -28,3 +28,7 @@ PROG
 VOID FUNC main
     INT x = 4
     INT x = 5
+
+main:
+	mov    w9, #4
+	mov    w9, #5
