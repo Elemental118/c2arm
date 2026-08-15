@@ -86,6 +86,18 @@ static struct node *node_create(int children_num, enum node_type nt)
 	return n;
 }
 
+int get_precedence(enum token_type tt)
+{
+	switch (tt) {
+	case TOKEN_PLUS:
+		return 11;
+	case TOKEN_STAR:
+		return 12;
+	default:
+		return -1;
+	}
+}
+
 static struct node *parse_stmt(struct parser *p)
 {
 	// Shared
