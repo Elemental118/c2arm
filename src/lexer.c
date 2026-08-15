@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +28,7 @@ const char *token_names[] = {
 
 static bool is_in_id(u8 c)
 {
-	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_');
+	return isalpha(c) || (c == '_');
 }
 
 struct lexer *lexer_create_and_load(const char *filename, int prog_size)
