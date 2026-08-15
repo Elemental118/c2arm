@@ -45,14 +45,25 @@ static void irgen_func(struct irgen *ir, struct node *n)
 	ir->instrs[ir->pos++].i_type = INSTR_FUNC_END;
 }
 
-void irgen_prog(struct irgen *ir, struct node *n)
+void irgen_prog(struct irgen *ir, struct node *ast)
 {
-	for (int i = 0; i < n->children_num; i++) {
-		irgen_func(ir, n->children[i]);
+	for (int i = 0; i < ast->children_num; i++) {
+		irgen_func(ir, ast->children[i]);
 	}
 	if (ir->pos == MAX_INSTRS) {
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
 	}
 	ir->instrs[ir->pos++].i_type = INSTR_EOF;
+}
+
+struct irgen *irgen_create_and_load(void)
+{
+	struct irgen *ir = calloc(1, sizeof(*ir));
+	return ir;
+}
+
+void irgen_free(struct irgen *ir)
+{
+	free(ir);
 }
