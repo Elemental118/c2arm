@@ -119,10 +119,27 @@ static struct node *parse_stmt(struct parser *p)
 	parent->children[0] = left;
 	strcpy(left->name, var_name);
 	left->d_type = DTYPE_INT;
-	struct node *right = node_create(0, NODE_INT_LIT);
+
+	struct node *right;
+	if (peek(p).type == TOKEN_INT_LIT) {
+		right = node_create(0, NODE_INT_LIT);
+		right->val = expect(p, TOKEN_INT_LIT).val;
+		right->d_type = DTYPE_INT;
+	} else if (peek(p).type == TOKEN_ID) {
+		right = node_create(0, NODE_VAR_NAME);
+		strncpy(right->name, expect(p, TOKEN_ID).name, MAX_ID_LEN - 1);
+		right->name[MAX_ID_LEN - 1] = '\0';
+		enum data_type d = symtable_load(&p->symtable, right->name);
+		if (d == DTYPE_ERR) {
+			fprintf(stderr, "unknown symbol %s\n", right->name);
+			exit(1);
+		}
+		right->d_type = d;
+	} else {
+		fprintf(stderr, "parsing error\n");
+		exit(1);
+	}
 	parent->children[1] = right;
-	right->val = expect(p, TOKEN_INT_LIT).val;
-	right->d_type = DTYPE_INT;
 	expect(p, TOKEN_SEMI);
 	return parent;
 }
