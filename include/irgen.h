@@ -14,7 +14,8 @@ enum instr_type {
 	INSTR_ASSIGN,
 	INSTR_COMPUTE,
 	INSTR_FUNC_START,
-	INSTR_FUNC_END
+	INSTR_FUNC_END,
+	INSTR_EOF
 };
 
 struct instr {
@@ -36,5 +37,7 @@ struct instr {
 		int  op2_val;
 	};
 };
+
+void irgen_prog(struct irgen *ir, struct node *n);
 
 #endif
