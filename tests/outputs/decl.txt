@@ -14,6 +14,6 @@ TOKEN_EOF
 
 PROG
     VOID FUNC main
-        INT BIN =
+        ASSIGN
             INT VAR x
             INT 4

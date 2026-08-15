@@ -19,9 +19,9 @@ TOKEN_EOF
 
 PROG
     VOID FUNC main
-        INT BIN =
+        ASSIGN
             INT VAR a
             INT 1
-        INT BIN =
+        ASSIGN
             INT VAR b
             INT 2
