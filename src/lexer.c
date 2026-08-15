@@ -13,18 +13,18 @@ struct lexer {
 };
 
 const char *token_names[] = {
-    [TOKEN_ERR] = "TOKEN_ERR",
-    [TOKEN_INT] = "TOKEN_INT",
-    [TOKEN_VOID] = "TOKEN_VOID",
-    [TOKEN_ID] = "TOKEN_ID",
-    [TOKEN_LPAREN] = "TOKEN_LPAREN",
-    [TOKEN_RPAREN] = "TOKEN_RPAREN",
-    [TOKEN_LBRACE] = "TOKEN_LBRACE",
-    [TOKEN_RBRACE] = "TOKEN_RBRACE",
-    [TOKEN_SEMI] = "TOKEN_SEMI",
-    [TOKEN_ASSIGN] = "TOKEN_ASSIGN",
-    [TOKEN_INT_LIT] = "TOKEN_INT_LIT",
-    [TOKEN_EOF] = "TOKEN_EOF"
+    [TOKEN_ERR] = "ERR",
+    [TOKEN_INT] = "INT",
+    [TOKEN_VOID] = "VOID",
+    [TOKEN_ID] = "ID",
+    [TOKEN_LPAREN] = "LPAREN",
+    [TOKEN_RPAREN] = "RPAREN",
+    [TOKEN_LBRACE] = "LBRACE",
+    [TOKEN_RBRACE] = "RBRACE",
+    [TOKEN_SEMI] = "SEMI",
+    [TOKEN_ASSIGN] = "ASSIGN",
+    [TOKEN_INT_LIT] = "INT_LIT",
+    [TOKEN_EOF] = "EOF"
 };
 
 static bool is_in_id(u8 c)
