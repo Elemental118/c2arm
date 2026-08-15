@@ -98,6 +98,30 @@ int get_precedence(enum token_type tt)
 	}
 }
 
+struct node *parse_primary(struct parser *p)
+{
+	struct node *n;
+	if (peek(p).type == TOKEN_INT_LIT) {
+		n = node_create(0, NODE_INT_LIT);
+		n->val = expect(p, TOKEN_INT_LIT).val;
+		n->d_type = DTYPE_INT;
+	} else if (peek(p).type == TOKEN_ID) {
+		n = node_create(0, NODE_VAR_NAME);
+		strncpy(n->name, expect(p, TOKEN_ID).name, MAX_ID_LEN - 1);
+		n->name[MAX_ID_LEN - 1] = '\0';
+		enum data_type d = symtable_load(&p->symtable, n->name);
+		if (d == DTYPE_ERR) {
+			fprintf(stderr, "unknown symbol %s\n", n->name);
+			exit(1);
+		}
+		n->d_type = d;
+	} else {
+		fprintf(stderr, "parsing error\n");
+		exit(1);
+	}
+	return n;
+}
+
 static struct node *parse_stmt(struct parser *p)
 {
 	// Shared
@@ -132,26 +156,7 @@ static struct node *parse_stmt(struct parser *p)
 	strcpy(left->name, var_name);
 	left->d_type = DTYPE_INT;
 
-	struct node *right;
-	if (peek(p).type == TOKEN_INT_LIT) {
-		right = node_create(0, NODE_INT_LIT);
-		right->val = expect(p, TOKEN_INT_LIT).val;
-		right->d_type = DTYPE_INT;
-	} else if (peek(p).type == TOKEN_ID) {
-		right = node_create(0, NODE_VAR_NAME);
-		strncpy(right->name, expect(p, TOKEN_ID).name, MAX_ID_LEN - 1);
-		right->name[MAX_ID_LEN - 1] = '\0';
-		enum data_type d = symtable_load(&p->symtable, right->name);
-		if (d == DTYPE_ERR) {
-			fprintf(stderr, "unknown symbol %s\n", right->name);
-			exit(1);
-		}
-		right->d_type = d;
-	} else {
-		fprintf(stderr, "parsing error\n");
-		exit(1);
-	}
-	parent->children[1] = right;
+	parent->children[1] = parse_primary(p);
 	expect(p, TOKEN_SEMI);
 	return parent;
 }
