@@ -11,6 +11,7 @@
 int main(int argc, char **argv)
 {
 	// INIT
+	setvbuf(stdout, NULL, _IOLBF, 0);
 	if (argc != 2) {
 		fprintf(stderr, "usage: ./compiler <file>\n");
 		exit(1);
