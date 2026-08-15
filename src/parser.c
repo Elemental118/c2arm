@@ -48,27 +48,35 @@ static struct node *node_create(int children_num, enum node_type nt)
 	return n;
 }
 
-static struct node *parse_var_decl(struct parser *p)
+static struct node *parse_stmt(struct parser *p)
 {
-	struct node *parent = node_create(2, NODE_BIN);
-	parent->op = '=';
-	parent->d_type = DTYPE_INT;
-	expect(p, TOKEN_INT);
-	struct node *left = node_create(0, NODE_VAR_NAME);
-
-	parent->children[0] = left;
-	strcpy(left->name, peek(p).name);
-	left->d_type = DTYPE_INT;
+	// Shared
+	if (peek(p).type == TOKEN_INT) {
+		advance(p);
+	}
+	char var_name[32];
+	strcpy(var_name, peek(p).name);
 	expect(p, TOKEN_ID);
-	expect(p, TOKEN_ASSIGN);
+	struct token t = peek(p);
+	if (t.type == TOKEN_SEMI) {
+		advance(p);
+		return NULL;
+	}
 
+	// If assignment
+	struct node *parent = node_create(2, NODE_ASSIGN);
+	parent->children_num = 2;
+	parent->d_type = DTYPE_INT;
+	expect(p, TOKEN_ASSIGN);
+	struct node *left = node_create(0, NODE_VAR_NAME);
+	parent->children[0] = left;
+	strcpy(left->name, var_name);
 	struct node *right = node_create(0, NODE_INT_LIT);
 	parent->children[1] = right;
-	right->d_type = DTYPE_INT;
 	right->val = peek(p).val;
-	expect(p, TOKEN_INT_LIT);
+	right->d_type = DTYPE_INT;
+	advance(p);
 	expect(p, TOKEN_SEMI);
-	parent->children_num = 2;
 	return parent;
 }
 
@@ -85,8 +93,13 @@ static struct node *parse_func_decl(struct parser *p)
 	expect(p, TOKEN_LBRACE);
 
 	for (int i = 0; peek(p).type != TOKEN_RBRACE; i++) {
-		parent->children[i] = parse_var_decl(p);
-		parent->children_num++;
+		struct node *n = parse_stmt(p);
+		if (!n) {
+			i--;
+		} else {
+			parent->children[i] = n;
+			parent->children_num++;
+		}
 	}
 	advance(p);
 	return parent;
@@ -131,8 +144,8 @@ static void ast_print_helper(struct node *n, int depth)
 	case NODE_FUNC:
 		printf("%s FUNC %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
 		break;
-	case NODE_BIN:
-		printf("%s BIN %c\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->op);
+	case NODE_ASSIGN:
+		printf("ASSIGN\n");
 		break;
 	case NODE_VAR_NAME:
 		printf("%s VAR %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);

@@ -8,9 +8,10 @@ enum node_type {
 
 	NODE_PROG,
 	NODE_BIN,
+	NODE_ASSIGN,
 	NODE_FUNC,
 	NODE_INT_LIT,
-	NODE_VAR_NAME,
+	NODE_VAR_NAME
 };
 
 enum data_type {
