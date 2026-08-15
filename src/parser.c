@@ -7,6 +7,7 @@
 #include "types.h"
 
 #define MAX_STMTS 100
+#define MAX_FUNCS 10
 #define MAX_SYMS 10
 
 struct sym {
@@ -154,7 +155,7 @@ static struct node *parse_func_decl(struct parser *p)
 
 struct node *parse_program(struct parser *p)
 {
-	struct node *parent = node_create(MAX_STMTS, NODE_PROG);
+	struct node *parent = node_create(MAX_FUNCS, NODE_PROG);
 	parent->d_type = DTYPE_ROOT;
 	for (int i = 0; peek(p).type != TOKEN_EOF; i++) {
 		parent->children[i] = parse_func_decl(p);
