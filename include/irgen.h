@@ -38,6 +38,7 @@ struct instr {
 	};
 };
 
+struct irgen;
 void irgen_prog(struct irgen *ir, struct node *n);
 
 #endif
