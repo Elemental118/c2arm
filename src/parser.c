@@ -41,10 +41,10 @@ static struct token advance(struct parser *p)
 	return p->tokens[p->pos++];
 }
 
-static void expect(struct parser *p, enum token_type t)
+static struct token expect(struct parser *p, enum token_type t)
 {
 	if (peek(p).type == t) {
-		advance(p);
+		return advance(p);
 	} else {
 		fprintf(stderr, "parsing error\n");
 		exit(1);
@@ -94,7 +94,7 @@ static struct node *parse_stmt(struct parser *p)
 		advance(p);
 	}
 	char var_name[32];
-	strcpy(var_name, peek(p).name);
+	strcpy(var_name, expect(p, TOKEN_ID).name);
 	if (declare) {
 		symtable_store(&p->symtable, var_name, DTYPE_INT);
 	} else {
@@ -103,7 +103,6 @@ static struct node *parse_stmt(struct parser *p)
 			exit(1);
 		}
 	}
-	expect(p, TOKEN_ID);
 	struct token t = peek(p);
 	if (t.type == TOKEN_SEMI) {
 		advance(p);
@@ -121,9 +120,8 @@ static struct node *parse_stmt(struct parser *p)
 	left->d_type = DTYPE_INT;
 	struct node *right = node_create(0, NODE_INT_LIT);
 	parent->children[1] = right;
-	right->val = peek(p).val;
+	right->val = expect(p, TOKEN_INT_LIT).val;
 	right->d_type = DTYPE_INT;
-	advance(p);
 	expect(p, TOKEN_SEMI);
 	return parent;
 }
@@ -133,8 +131,7 @@ static struct node *parse_func_decl(struct parser *p)
 	expect(p, TOKEN_VOID);
 	struct node *parent = node_create(MAX_STMTS, NODE_FUNC);
 	parent->d_type = DTYPE_VOID;
-	strcpy(parent->name, peek(p).name);
-	expect(p, TOKEN_ID);
+	strcpy(parent->name, expect(p, TOKEN_ID).name);
 	expect(p, TOKEN_LPAREN);
 	expect(p, TOKEN_VOID);
 	expect(p, TOKEN_RPAREN);
