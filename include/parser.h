@@ -28,7 +28,7 @@ struct node {
 	enum node_type n_type;
 	enum data_type d_type;
 	union {
-		char op;
+		char op[3];
 		int  val;
 		char name[32];
 	};

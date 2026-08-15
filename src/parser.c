@@ -138,6 +138,17 @@ struct node *parse_expr(struct parser *p, int prec_min)
 		parent->children[0] = left;
 		parent->children[1] = right;
 		left = parent;
+		switch (next.type) {
+		case TOKEN_PLUS:
+			strcpy(left->op, "+");
+			break;
+		case TOKEN_STAR:
+			strcpy(left->op, "*");
+			break;
+		default:
+			strcpy(left->op, "?");
+			break;
+		}
 	}
 	return left;
 }
