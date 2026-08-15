@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 	struct parser *p = parser_create_and_load(tokens, MAX_TOKENS);
 	struct node *ast = parse_program(p);
 	ast_print(ast);
+	ast_free(ast);
 	parser_free(p);
 	
 	free(tokens);

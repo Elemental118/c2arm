@@ -215,3 +215,12 @@ void ast_print(struct node *n)
 {
 	ast_print_helper(n, 0);
 }
+
+void ast_free(struct node *n)
+{
+	for (int i = 0; i < n->children_num; i++) {
+		ast_free(n->children[i]);
+	}
+	free(n->children);
+	free(n);
+}
