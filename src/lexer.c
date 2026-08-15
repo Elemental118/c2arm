@@ -110,6 +110,7 @@ struct token next_token(struct lexer *l)
 			c = l->prog[++l->pos];
 		}
 		if (original != l->pos) {
+			l->pos--;
 			break;
 		}
 
