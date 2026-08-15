@@ -56,3 +56,12 @@ char *regtable_store(struct codegen *cg, char *var_name)
 	fprintf(stderr, "register allocation error\n");
 	exit(1);
 }
+
+void codegen_stmt(struct codegen *cg, struct instr *i)
+{
+	if (cg->pos == MAX_ASM_INSTRS) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d", "mov", regtable_store(cg, i->dest_name), i->op1_val);
+}
