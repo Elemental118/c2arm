@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "codegen.h"
 #include "irgen.h"
 #include "parser.h"
 #include "lexer.h"
@@ -61,5 +62,10 @@ int main(int argc, char **argv)
 	irgen_free(irg);
 	ast_free(ast);
 	ir_print(ir);
+
+	// CODEGEN
+	struct codegen *cg = codegen_create();
+	codegen_prog(cg, ir);
+	codegen_free(cg);
 	ir_free(ir);
 }
