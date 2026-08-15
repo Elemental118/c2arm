@@ -55,15 +55,15 @@ struct instr *irgen_prog(struct irgen *irg, struct node *ast)
 		exit(1);
 	}
 	irg->instrs[irg->pos++].i_type = INSTR_EOF;
-	struct instr *instrs = malloc(irg->pos * sizeof(*instrs));
-	memcpy(instrs, irg->instrs, irg->pos * sizeof(*instrs));
-	return instrs;
+	struct instr *ir = malloc(irg->pos * sizeof(*ir));
+	memcpy(ir, irg->instrs, irg->pos * sizeof(*ir));
+	return ir;
 
 }
 
-void instr_free(struct instr *instrs)
+void ir_free(struct instr *ir)
 {
-	free(instrs);
+	free(ir);
 }
 
 struct irgen *irgen_create_and_load(void)

@@ -60,5 +60,5 @@ int main(int argc, char **argv)
 	irgen_free(irg);
 	ast_free(ast);
 
-	instr_free(ir);
+	ir_free(ir);
 }
