@@ -97,3 +97,13 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 		}
 	}
 }
+
+void codegen_print(struct codegen *cg)
+{
+	for (int i = 0; i < MAX_ASM_INSTRS; i++) {
+		printf("%s\n", cg->assembly[i]);
+		if (!cg->assembly[i][0]) {
+			return;
+		}
+	}
+}

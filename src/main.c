@@ -62,10 +62,12 @@ int main(int argc, char **argv)
 	irgen_free(irg);
 	ast_free(ast);
 	ir_print(ir);
+	printf("\n");
 
 	// CODEGEN
 	struct codegen *cg = codegen_create();
 	codegen_prog(cg, ir);
+	codegen_print(cg);
 	codegen_free(cg);
 	ir_free(ir);
 }

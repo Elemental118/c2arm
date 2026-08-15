@@ -7,4 +7,6 @@ void codegen_free(struct codegen *cg);
 struct instr;
 void codegen_prog(struct codegen *cg, struct instr *ir);
 
+void codegen_print(struct codegen *cg);
+
 #endif
