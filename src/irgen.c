@@ -6,8 +6,6 @@
 #include "parser.h"
 #include "types.h"
 
-#define MAX_INSTRS 100
-
 struct irgen {
 	struct instr *instrs;
 	int pos;

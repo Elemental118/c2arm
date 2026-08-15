@@ -57,11 +57,43 @@ char *regtable_store(struct codegen *cg, char *var_name)
 	exit(1);
 }
 
-void codegen_stmt(struct codegen *cg, struct instr *i)
+static void codegen_stmt(struct codegen *cg, struct instr *instr)
 {
 	if (cg->pos == MAX_ASM_INSTRS) {
 		fprintf(stderr, "too many assembly instructions\n");
 		exit(1);
 	}
-	sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d", "mov", regtable_store(cg, i->dest_name), i->op1_val);
+	sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d", "mov", regtable_store(cg, instr->dest_name), instr->op1_val);
+}
+
+static void codegen_func_stmt(struct codegen *cg, struct instr *instr)
+{
+	if (cg->pos == MAX_ASM_INSTRS) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	sprintf(cg->assembly[cg->pos++], "%s:", instr->dest_name);
+}
+
+void codegen_prog(struct codegen *cg, struct instr *ir)
+{
+	for (int i = 0; ; i++) {
+		struct instr *instr = &ir[i];
+		switch (instr->i_type) {
+		case INSTR_ASSIGN:
+			codegen_stmt(cg, instr);
+			break;
+		case INSTR_FUNC_START:
+			codegen_func_stmt(cg, instr);
+			break;
+		case INSTR_FUNC_END:
+			break;
+		case INSTR_EOF:
+			return;
+		case INSTR_ERR:
+		default:
+			fprintf(stderr, "unknown assembly instruction\n");
+			exit(1);
+		}
+	}
 }

@@ -4,4 +4,6 @@
 struct codegen *codegen_create(void);
 void codegen_free(struct codegen *cg);
 
+void codegen_prog(struct codegen *cg, struct instr *ir);
+
 #endif

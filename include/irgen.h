@@ -3,6 +3,8 @@
 
 #include "parser.h"
 
+#define MAX_INSTRS 100
+
 enum operand_kind {
 	OPERAND_NAME,
 	OPERAND_LITERAL
