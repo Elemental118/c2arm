@@ -97,6 +97,10 @@ struct token next_token(struct lexer *l)
 		}
 		int original = l->pos;
 		while (is_in_id(c)) {
+			if (l->pos - original == MAX_ID_LEN - 1) {
+				t.type = TOKEN_ERR;
+				return t;
+			}
 			t.name[l->pos++ - original] = c;
 			c = l->prog[l->pos];
 		}
