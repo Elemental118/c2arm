@@ -36,7 +36,7 @@ static void expect(struct parser *p, enum token_type t)
 static struct node *node_create(int children_num, enum node_type nt)
 {
 	struct node *n = calloc(1, sizeof(*n));
-	n->type = nt;
+	n->n_type = nt;
 	if (children_num) {
 		n->children = malloc(children_num * sizeof(*n->children));
 	}
@@ -47,16 +47,19 @@ static struct node *parse_var_decl(struct parser *p)
 {
 	struct node *parent = node_create(2, NODE_BIN);
 	parent->op = '=';
+	parent->d_type = DTYPE_INT;
 	expect(p, TOKEN_INT);
 	struct node *left = node_create(0, NODE_VAR_NAME);
 
 	parent->children[0] = left;
 	strcpy(left->name, peek(p).name);
+	left->d_type = DTYPE_INT;
 	expect(p, TOKEN_ID);
 	expect(p, TOKEN_ASSIGN);
 
 	struct node *right = node_create(0, NODE_INT_LIT);
 	parent->children[1] = right;
+	right->d_type = DTYPE_INT;
 	right->val = peek(p).val;
 	expect(p, TOKEN_INT_LIT);
 	expect(p, TOKEN_SEMI);
@@ -68,6 +71,7 @@ static struct node *parse_func_decl(struct parser *p)
 {
 	expect(p, TOKEN_VOID);
 	struct node *parent = node_create(MAX_STMTS, NODE_FUNC);
+	parent->d_type = DTYPE_VOID;
 	strcpy(parent->name, peek(p).name);
 	expect(p, TOKEN_ID);
 	expect(p, TOKEN_LPAREN);
@@ -86,6 +90,7 @@ static struct node *parse_func_decl(struct parser *p)
 struct node *parse_program(struct parser *p)
 {
 	struct node *parent = node_create(MAX_STMTS, NODE_PROG);
+	parent->d_type = DTYPE_ROOT;
 	for (int i = 0; peek(p).type != TOKEN_EOF; i++) {
 		parent->children[i] = parse_func_decl(p);
 		parent->children_num++;
@@ -114,7 +119,7 @@ static void ast_print_helper(struct node *n, int depth)
 		printf(" ");
 	}
 
-	switch (n->type) {
+	switch (n->n_type) {
 	case NODE_PROG:
 		printf("PROG\n");
 		break;

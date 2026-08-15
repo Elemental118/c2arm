@@ -13,10 +13,19 @@ enum node_type {
 	NODE_VAR_NAME,
 };
 
+enum data_type {
+	DTYPE_ERR,
+
+	DTYPE_ROOT,
+	DTYPE_INT,
+	DTYPE_VOID
+};
+
 struct node {
 	int children_num;
 	struct node **children;
-	enum node_type type;
+	enum node_type n_type;
+	enum data_type d_type;
 	union {
 		char op;
 		int  val;
