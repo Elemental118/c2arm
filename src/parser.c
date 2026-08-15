@@ -122,6 +122,26 @@ struct node *parse_primary(struct parser *p)
 	return n;
 }
 
+struct node *parse_expr(struct parser *p, int prec_min)
+{
+	struct node *left = parse_primary(p);
+	for (;;) {
+		struct token next = peek(p);
+		int prec_next = get_precedence(next.type);
+		if (prec_next < prec_min) {
+			break;
+		}
+		advance(p);
+		struct node *right = parse_expr(p, prec_next + 1);
+		struct node *parent = node_create(2, NODE_BIN);
+		parent->children_num = 2;
+		parent->children[0] = left;
+		parent->children[1] = right;
+		left = parent;
+	}
+	return left;
+}
+
 static struct node *parse_stmt(struct parser *p)
 {
 	// Shared
@@ -156,7 +176,7 @@ static struct node *parse_stmt(struct parser *p)
 	strcpy(left->name, var_name);
 	left->d_type = DTYPE_INT;
 
-	parent->children[1] = parse_primary(p);
+	parent->children[1] = parse_expr(p, 0);
 	expect(p, TOKEN_SEMI);
 	return parent;
 }
