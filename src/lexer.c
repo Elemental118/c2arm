@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,12 +92,28 @@ struct token next_token(struct lexer *l)
 		break;
 	
 	default:
-		if ('0' <= c && c <= '9') {
-			t.type = TOKEN_INT_LIT;
-			t.val = c - '0';
+		// INETGER LITERALS
+		int original = l->pos;
+		t.val = 0;
+		t.type = TOKEN_INT_LIT;
+		while ('0' <= c && c <= '9') {
+			if (l->pos - original == MAX_ID_LEN - 1) {
+				t.type = TOKEN_ERR;
+				return t;
+			}
+			if (t.val > (INT_MAX - (c - '0')) / 10) {
+				t.type = TOKEN_ERR;
+				return t;
+			}
+			t.val *= 10;
+			t.val += c - '0';
+			c = l->prog[++l->pos];
+		}
+		if (original != l->pos) {
 			break;
 		}
-		int original = l->pos;
+
+		// IDENTIFIERS/KEYWORDS
 		while (is_in_id(c)) {
 			if (l->pos - original == MAX_ID_LEN - 1) {
 				t.type = TOKEN_ERR;
