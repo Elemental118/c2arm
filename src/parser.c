@@ -87,11 +87,21 @@ static struct node *node_create(int children_num, enum node_type nt)
 static struct node *parse_stmt(struct parser *p)
 {
 	// Shared
+	bool declare = false;
 	if (peek(p).type == TOKEN_INT) {
+		declare = true;
 		advance(p);
 	}
 	char var_name[32];
 	strcpy(var_name, peek(p).name);
+	if (declare) {
+		symtable_store(&p->symtable, var_name, DTYPE_INT);
+	} else {
+		if (symtable_load(&p->symtable, var_name) == DTYPE_ERR) {
+			fprintf(stderr, "unknown symbol %s\n", var_name);
+			exit(1);
+		}
+	}
 	expect(p, TOKEN_ID);
 	struct token t = peek(p);
 	if (t.type == TOKEN_SEMI) {
@@ -102,7 +112,7 @@ static struct node *parse_stmt(struct parser *p)
 	// If assignment
 	struct node *parent = node_create(2, NODE_ASSIGN);
 	parent->children_num = 2;
-	parent->d_type = DTYPE_INT;
+	parent->d_type = symtable_load(&p->symtable, var_name);
 	expect(p, TOKEN_ASSIGN);
 	struct node *left = node_create(0, NODE_VAR_NAME);
 	parent->children[0] = left;
