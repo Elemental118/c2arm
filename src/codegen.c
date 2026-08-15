@@ -6,7 +6,7 @@
 #include "types.h"
 
 #define MAX_ASM_INSTRS 100
-#define MAX_ASM_INSTR_LEN 25
+#define MAX_ASM_INSTR_LEN 33
 #define MAX_REGS 7
 #define REGS_BEGIN 9
 
