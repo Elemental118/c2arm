@@ -32,7 +32,7 @@ static bool is_in_id(u8 c)
 
 struct lexer *lexer_create_and_load(const char *filename, int prog_size)
 {
-	struct lexer *l = calloc(sizeof(struct lexer), 1);
+	struct lexer *l = calloc(1, sizeof(*l));
 	l->prog = calloc(prog_size, sizeof(*l->prog));
 	FILE *f;
 	if (!(f = fopen(filename, "r"))) {
