@@ -3,8 +3,6 @@
 
 #include "lexer.h"
 
-#define MAX_SYMS 10
-
 enum node_type {
 	NODE_ERR,
 
@@ -36,9 +34,12 @@ struct node {
 	};
 };
 
+struct symtable;
+
 struct parser *parser_create_and_load(struct token *tokens, int token_num);
 void parser_free(struct parser *p);
 struct node *parse_program(struct parser *p);
 void ast_print(struct node *n);
+enum data_type symtable_load(struct symtable *s, char *name);
 
 #endif

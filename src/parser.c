@@ -7,6 +7,7 @@
 #include "types.h"
 
 #define MAX_STMTS 100
+#define MAX_SYMS 10
 
 struct sym {
 	char name[32];
@@ -47,6 +48,30 @@ static void expect(struct parser *p, enum token_type t)
 		fprintf(stderr, "parsing error\n");
 		exit(1);
 	}
+}
+
+static void symtable_store(struct symtable *s, char *name, enum data_type type)
+{
+	if (s->pos == MAX_SYMS) {
+		fprintf(stderr, "too many symbols\n");
+		exit(1);
+	}
+	if (symtable_load(s, name) != DTYPE_ERR) {
+		fprintf(stderr, "duplicate symbol %s\n", name);
+		exit(1);
+	}
+	strcpy(s->table[s->pos].name, name);
+	s->table[s->pos++].type = type;
+}
+
+enum data_type symtable_load(struct symtable *s, char *name)
+{
+	for (int i = 0; i < s->pos; i++) {
+		if (!strcmp(s->table[i].name, name)) {
+			return s->table[i].type;
+		}
+	}
+	return DTYPE_ERR;
 }
 
 static struct node *node_create(int children_num, enum node_type nt)
