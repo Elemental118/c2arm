@@ -1,8 +1,8 @@
 # c2arm
 A lightweight teaching-level C compiler targeting Linux ARM64!
 
-## Phase 1 Goals
-* Bare and merged `int` declarations, plus `int` reassignment
+## Currently Supports
+* Bare and merged `int` declarations, plus reassignment to `int` literal or variable
 * `void`/`void` functions
 * Single `.c` file, no libraries or headers
 
