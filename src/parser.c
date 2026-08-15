@@ -264,6 +264,9 @@ static void ast_print_helper(struct node *n, int depth)
 	case NODE_INT_LIT:
 		printf("INT %d\n", n->val);
 		break;
+	case NODE_BIN:
+		printf("BIN %s\n", n->op);
+		break;
 	case NODE_ERR:
 	default:
 		printf("UNKNOWN\n");
