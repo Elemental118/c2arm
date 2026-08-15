@@ -78,3 +78,33 @@ void irgen_free(struct irgen *irg)
 	free(irg->instrs);
 	free(irg);
 }
+
+void ir_print(struct instr *ir)
+{
+	for (int i = 0; ir[i].i_type != INSTR_EOF; i++) {
+		switch (ir[i].i_type) {
+		case INSTR_ASSIGN:
+			printf("    %s %s = ", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
+			if (ir[i].op1_kind == OPERAND_LITERAL) {
+				printf("%d", ir[i].op1_val);
+			} else {
+				printf("%s", ir[i].op1_name);
+			}
+			printf("\n");
+			break;
+		
+		case INSTR_FUNC_START:
+			printf("%s FUNC %s\n", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
+			break;
+		
+		case INSTR_FUNC_END:
+		case INSTR_EOF:
+			break;
+		
+		case INSTR_ERR:
+		default:
+			printf("UNKNOWN\n");
+			return;
+		}
+	}
+}

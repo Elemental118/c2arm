@@ -39,9 +39,10 @@ struct instr {
 };
 
 struct irgen *irgen_create_and_load(void);
-void irgen_free(struct irgen *ir);
+void irgen_free(struct irgen *irg);
 
-struct instr *irgen_prog(struct irgen *ir, struct node *n);
+struct instr *irgen_prog(struct irgen *irg, struct node *n);
 void ir_free(struct instr *instrs);
+void ir_print(struct instr *ir);
 
 #endif

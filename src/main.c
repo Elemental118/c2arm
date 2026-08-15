@@ -53,12 +53,13 @@ int main(int argc, char **argv)
 	parser_free(p);
 	ast_print(ast);
 	free(tokens);
+	printf("\n");
 
 	// IRGEN
 	struct irgen *irg = irgen_create_and_load();
 	struct instr *ir = irgen_prog(irg, ast);
 	irgen_free(irg);
 	ast_free(ast);
-
+	ir_print(ir);
 	ir_free(ir);
 }
