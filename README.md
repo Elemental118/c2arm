@@ -2,7 +2,7 @@
 A lightweight teaching-level C compiler targeting Linux ARM64!
 
 ## Phase 1 Goals
-* Merged declaration and assignment of `int` variables to 1-digit positive numbers
+* Bare and merged `int` declarations, plus reassignment, for variables holding 1-digit positive numbers
 * `void`/`void` functions
 * Single `.c` file, no libraries or headers
 
