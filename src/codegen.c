@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer.h"
 #include "irgen.h"
 #include "types.h"
 
@@ -45,7 +46,8 @@ char *regtable_store(struct codegen *cg, char *var_name)
 {
 	for (int i = 0; i < MAX_REGS; i++) {
 		if (cg->table.regs[i].free) {
-			strcpy(cg->table.regs[i].var_name, var_name);
+			strncpy(cg->table.regs[i].var_name, var_name, MAX_ID_LEN - 1);
+			cg->table.regs[i].var_name[MAX_ID_LEN - 1] = '\0';
 			cg->table.regs[i].free = false;
 			return cg->table.regs[i].reg_name;
 		}
