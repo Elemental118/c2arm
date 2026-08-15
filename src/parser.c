@@ -117,6 +117,7 @@ static struct node *parse_stmt(struct parser *p)
 	struct node *left = node_create(0, NODE_VAR_NAME);
 	parent->children[0] = left;
 	strcpy(left->name, var_name);
+	left->d_type = DTYPE_INT;
 	struct node *right = node_create(0, NODE_INT_LIT);
 	parent->children[1] = right;
 	right->val = peek(p).val;
