@@ -36,6 +36,8 @@ struct lexer *lexer_create_and_load(const char *filename, int prog_size)
 	l->prog = calloc(prog_size, sizeof(*l->prog));
 	FILE *f;
 	if (!(f = fopen(filename, "r"))) {
+		free(l);
+		free(l->prog);
 		return NULL;
 	};
 
