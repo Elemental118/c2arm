@@ -8,4 +8,4 @@ TOKEN_RBRACE
 TOKEN_EOF
 
 PROG
-    FUNC main
+    VOID FUNC main

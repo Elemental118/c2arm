@@ -13,7 +13,7 @@ TOKEN_RBRACE
 TOKEN_EOF
 
 PROG
-    FUNC main
-        BIN =
-            VAR x
+    VOID FUNC main
+        INT BIN =
+            INT VAR x
             INT 4
