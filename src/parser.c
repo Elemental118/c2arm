@@ -98,7 +98,7 @@ static struct node *parse_stmt(struct parser *p)
 		symtable_store(&p->symtable, var_name, DTYPE_INT);
 	} else {
 		if (symtable_load(&p->symtable, var_name) == DTYPE_ERR) {
-			fprintf(stderr, "unknown symbol %s", var_name);
+			fprintf(stderr, "unknown symbol %s\n", var_name);
 			exit(1);
 		}
 	}
