@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "irgen.h"
+#include "lexer.h"
 #include "parser.h"
 #include "types.h"
 
@@ -19,7 +20,8 @@ static void irgen_stmt(struct irgen *irg, struct node *n)
 	}
 	irg->instrs[irg->pos].i_type = INSTR_ASSIGN;
 	irg->instrs[irg->pos].d_type = n->children[0]->d_type;
-	strcpy(irg->instrs[irg->pos].dest_name, n->children[0]->name);
+	strncpy(irg->instrs[irg->pos].dest_name, n->children[0]->name, MAX_ID_LEN - 1);
+	irg->instrs[irg->pos].dest_name[MAX_ID_LEN - 1] = '\0';
 	irg->instrs[irg->pos].op1_kind = OPERAND_LITERAL;
 	irg->instrs[irg->pos++].op1_val = n->children[1]->val;
 }
@@ -32,7 +34,8 @@ static void irgen_func(struct irgen *irg, struct node *n)
 	}
 	irg->instrs[irg->pos].i_type = INSTR_FUNC_START;
 	irg->instrs[irg->pos].d_type = n->d_type;
-	strcpy(irg->instrs[irg->pos++].dest_name, n->name);
+	strncpy(irg->instrs[irg->pos].dest_name, n->name, MAX_ID_LEN - 1);
+	irg->instrs[irg->pos++].dest_name[MAX_ID_LEN - 1] = '\0';
 	for (int i = 0; i < n->children_num; i++) {
 		irgen_stmt(irg, n->children[i]);
 	}
