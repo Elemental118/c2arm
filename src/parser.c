@@ -124,13 +124,13 @@ static void ast_print_helper(struct node *n, int depth)
 		printf("PROG\n");
 		break;
 	case NODE_FUNC:
-		printf("FUNC %s\n", n->name);
+		printf("%s FUNC %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
 		break;
 	case NODE_BIN:
-		printf("BIN %c\n", n->op);
+		printf("%s BIN %c\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->op);
 		break;
 	case NODE_VAR_NAME:
-		printf("VAR %s\n", n->name);
+		printf("%s VAR %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
 		break;
 	case NODE_INT_LIT:
 		printf("INT %d\n", n->val);
