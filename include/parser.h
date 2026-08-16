@@ -43,6 +43,4 @@ struct node *parse_program(struct parser *p);
 void ast_print(struct node *n);
 void ast_free(struct node *n);
 
-enum data_type symtable_load(struct symtable *s, char *name);
-
 #endif

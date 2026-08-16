@@ -51,6 +51,16 @@ static struct token expect(struct parser *p, enum token_type t)
 	}
 }
 
+static enum data_type symtable_load(struct symtable *s, char *name)
+{
+	for (int i = 0; i < s->pos; i++) {
+		if (!strcmp(s->table[i].name, name)) {
+			return s->table[i].type;
+		}
+	}
+	return DTYPE_ERR;
+}
+
 static void symtable_store(struct symtable *s, char *name, enum data_type type)
 {
 	if (s->pos == MAX_SYMS) {
@@ -64,16 +74,6 @@ static void symtable_store(struct symtable *s, char *name, enum data_type type)
 	strncpy(s->table[s->pos].name, name, MAX_ID_LEN - 1);
 	s->table[s->pos].name[MAX_ID_LEN - 1] = '\0';
 	s->table[s->pos++].type = type;
-}
-
-enum data_type symtable_load(struct symtable *s, char *name)
-{
-	for (int i = 0; i < s->pos; i++) {
-		if (!strcmp(s->table[i].name, name)) {
-			return s->table[i].type;
-		}
-	}
-	return DTYPE_ERR;
 }
 
 static struct node *node_create(int children_num, enum node_type nt)
