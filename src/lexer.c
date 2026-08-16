@@ -12,21 +12,26 @@ struct lexer {
 	int pos;
 };
 
-const char *token_names[] = {
-    [TOKEN_ERR] = "ERR",
-    [TOKEN_INT] = "INT",
-    [TOKEN_VOID] = "VOID",
-    [TOKEN_ID] = "ID",
-    [TOKEN_LPAREN] = "LPAREN",
-    [TOKEN_RPAREN] = "RPAREN",
-    [TOKEN_LBRACE] = "LBRACE",
-    [TOKEN_RBRACE] = "RBRACE",
-    [TOKEN_SEMI] = "SEMI",
-    [TOKEN_PLUS] = "PLUS",
-    [TOKEN_STAR] = "STAR",
-    [TOKEN_ASSIGN] = "ASSIGN",
-    [TOKEN_INT_LIT] = "INT_LIT",
-    [TOKEN_EOF] = "EOF"
+static const char *token_names[] = {
+	[TOKEN_ERR] = "ERR",
+	[TOKEN_INT] = "INT",
+	[TOKEN_VOID] = "VOID",
+	[TOKEN_ID] = "ID",
+	[TOKEN_LPAREN] = "LPAREN",
+	[TOKEN_RPAREN] = "RPAREN",
+	[TOKEN_LBRACE] = "LBRACE",
+	[TOKEN_RBRACE] = "RBRACE",
+	[TOKEN_SEMI] = "SEMI",
+	[TOKEN_PLUS] = "PLUS",
+	[TOKEN_MINUS] = "MINUS",
+	[TOKEN_STAR] = "STAR",
+	[TOKEN_DIV] = "DIV",
+	[TOKEN_AMP] = "AMP",
+	[TOKEN_PIPE] = "PIPE",
+	[TOKEN_XOR] = "XOR",
+	[TOKEN_ASSIGN] = "ASSIGN",
+	[TOKEN_INT_LIT] = "INT_LIT",
+	[TOKEN_EOF] = "EOF"
 };
 
 static bool is_in_id(u8 c)
@@ -85,8 +90,28 @@ struct token next_token(struct lexer *l)
 		t.type = TOKEN_PLUS;
 		break;
 	
+	case '-':
+		t.type = TOKEN_MINUS;
+		break;
+	
 	case '*':
 		t.type = TOKEN_STAR;
+		break;
+	
+	case '/':
+		t.type = TOKEN_DIV;
+		break;
+	
+	case '&':
+		t.type = TOKEN_AMP;
+		break;
+	
+	case '|':
+		t.type = TOKEN_PIPE;
+		break;
+	
+	case '^':
+		t.type = TOKEN_XOR;
 		break;
 	
 	case ';':

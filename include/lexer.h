@@ -2,7 +2,6 @@
 #define LEXER_H
 
 #define MAX_ID_LEN 32
-
 #define MAX_TOKENS 100
 
 enum token_type {
@@ -17,7 +16,12 @@ enum token_type {
 	TOKEN_RBRACE,
 	TOKEN_SEMI,
 	TOKEN_PLUS,
+	TOKEN_MINUS,
 	TOKEN_STAR,
+	TOKEN_DIV,
+	TOKEN_AMP,
+	TOKEN_PIPE,
+	TOKEN_XOR,
 	TOKEN_ASSIGN,
 	TOKEN_INT_LIT,
 	TOKEN_EOF
@@ -30,8 +34,6 @@ struct token {
 		int val;
 	};
 };
-
-extern const char *token_names[];
 
 struct lexer *lexer_create_and_load(const char *filename, int prog_size);
 void lexer_free(struct lexer *l);
