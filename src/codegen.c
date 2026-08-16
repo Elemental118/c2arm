@@ -135,15 +135,31 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 			"msub", regtable_store(cg, instr->dest_name),
 			regtable_store(cg, "u2"), regtable_store(cg, op2_name), regtable_store(cg, op1_name));
 		return;
-	} else if (!strcmp(instr->op, "<") || !strcmp(instr->op, ">")) {
+	} else if (!strcmp(instr->op, "<") || !strcmp(instr->op, ">")
+		|| !strcmp(instr->op, "<=") || !strcmp(instr->op, ">=")
+		|| !strcmp(instr->op, "==") || !strcmp(instr->op, "!=")) {
 		if (cg->pos + 1 == MAX_ASM_INSTRS) {
 			fprintf(stderr, "too many assembly instructions\n");
 			exit(1);
 		}
 		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
 			"cmp", regtable_store(cg, op1_name), regtable_store(cg, op2_name));
+		char cset_code[3];
+		if (!strcmp(instr->op, "<")) {
+			strcpy(cset_code, "lt");
+		} else if (!strcmp(instr->op, ">")) {
+			strcpy(cset_code, "gt");
+		} else if (!strcmp(instr->op, "<=")) {
+			strcpy(cset_code, "le");
+		} else if (!strcmp(instr->op, ">=")) {
+			strcpy(cset_code, "ge");
+		} else if (!strcmp(instr->op, "==")) {
+			strcpy(cset_code, "eq");
+		} else if (!strcmp(instr->op, "!=")) {
+			strcpy(cset_code, "ne");
+		}
 		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
-			"cset", regtable_store(cg, instr->dest_name), !strcmp(instr->op, "<") ? "lt" : "gt");
+			"cset", regtable_store(cg, instr->dest_name), cset_code);
 		return;
 	} else {
 		fprintf(stderr, "assembly gen error\n");
