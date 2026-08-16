@@ -227,11 +227,11 @@ struct node *parse_program(struct parser *p)
 	return parent;
 }
 
-struct parser *parser_create_and_load(struct token *tokens, int token_num)
+struct parser *parser_create_and_load(struct token *tokens)
 {
 	struct parser *p = calloc(1, sizeof(*p));
-	p->tokens = malloc(token_num * sizeof(*p->tokens));
-	memcpy(p->tokens, tokens, token_num * sizeof(*p->tokens));
+	p->tokens = malloc(MAX_TOKENS * sizeof(*p->tokens));
+	memcpy(p->tokens, tokens, MAX_TOKENS * sizeof(*p->tokens));
 	return p;
 }
 

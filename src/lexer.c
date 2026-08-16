@@ -151,6 +151,23 @@ struct token next_token(struct lexer *l)
 	return t;
 }
 
+struct token *lex_program(struct lexer *l)
+{
+	struct token *tokens = malloc(MAX_TOKENS * sizeof(*tokens));
+	for (int i = 0; i < MAX_TOKENS; i++) {
+		tokens[i] = next_token(l);
+		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
+			break;
+		}
+	}
+	return tokens;
+}
+
+void tokens_free(struct token *tokens)
+{
+	free(tokens);
+}
+
 void tokens_print(struct token *tokens)
 {
 	for (int i = 0; i < MAX_TOKENS; i ++) {

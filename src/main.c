@@ -34,29 +34,21 @@ int main(int argc, char **argv)
 		fprintf(stderr, "error: invalid file\n");
 		exit(1);
 	}
-
-	struct token *tokens = malloc(MAX_TOKENS * sizeof(*tokens));
-	for (int i = 0; i < MAX_TOKENS; i++) {
-		tokens[i] = next_token(l);
-		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
-			break;
-		}
-	}
-
+	struct token *tokens = lex_program(l);
 	if (verbose) {
 		tokens_print(tokens);
 		printf("\n");
 	}
 	
 	// PARSING
-	struct parser *p = parser_create_and_load(tokens, MAX_TOKENS);
+	struct parser *p = parser_create_and_load(tokens);
 	struct node *ast = parse_program(p);
 	parser_free(p);
 	if (verbose) {
 		ast_print(ast);
 		printf("\n");
 	}
-	free(tokens);
+	tokens_free(tokens);
 
 	// IRGEN
 	struct irgen *irg = irgen_create_and_load();

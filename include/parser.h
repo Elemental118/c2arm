@@ -36,7 +36,7 @@ struct node {
 
 struct symtable;
 
-struct parser *parser_create_and_load(struct token *tokens, int token_num);
+struct parser *parser_create_and_load(struct token *tokens);
 void parser_free(struct parser *p);
 struct node *parse_program(struct parser *p);
 
