@@ -37,6 +37,8 @@ static const char *token_names[] = {
 	[TOKEN_GE] = "GE",
 	[TOKEN_EQ] = "EQ",
 	[TOKEN_NE] = "NE",
+	[TOKEN_BNOT] = "BNOT",
+	[TOKEN_LNOT] = "LNOT",
 	[TOKEN_ASSIGN] = "ASSIGN",
 	[TOKEN_INT_LIT] = "INT_LIT",
 	[TOKEN_EOF] = "EOF"
@@ -162,8 +164,12 @@ struct token next_token(struct lexer *l)
 			l->pos++;
 			t.type = TOKEN_NE;
 		} else {
-			t.type = TOKEN_ERR;
+			t.type = TOKEN_LNOT;
 		}
+		break;
+	
+	case '~':
+		t.type = TOKEN_BNOT;
 		break;
 	
 	case '\0':
