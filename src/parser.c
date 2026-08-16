@@ -180,7 +180,6 @@ static struct node *parse_stmt(struct parser *p)
 	// If assignment
 	struct node *parent = node_create(2, NODE_ASSIGN);
 	parent->children_num = 2;
-	parent->d_type = symtable_load(&p->symtable, var_name);
 	expect(p, TOKEN_ASSIGN);
 	struct node *left = node_create(0, NODE_VAR_NAME);
 	parent->children[0] = left;
