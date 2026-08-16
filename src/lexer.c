@@ -150,3 +150,13 @@ struct token next_token(struct lexer *l)
 	l->pos++;
 	return t;
 }
+
+void tokens_print(struct token *tokens)
+{
+	for (int i = 0; i < MAX_TOKENS; i ++) {
+		printf("%s\n", token_names[tokens[i].type]);
+		if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
+			break;
+		}
+	}
+}

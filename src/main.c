@@ -9,7 +9,6 @@
 #include "types.h"
 
 #define MAX_FILE_LEN 1000
-#define MAX_TOKENS 100
 
 int main(int argc, char **argv)
 {
@@ -45,12 +44,7 @@ int main(int argc, char **argv)
 	}
 
 	if (verbose) {
-		for (int i = 0; i < MAX_TOKENS; i ++) {
-			printf("%s\n", token_names[tokens[i].type]);
-			if (tokens[i].type == TOKEN_EOF || tokens[i].type == TOKEN_ERR) {
-				break;
-			}
-		}
+		tokens_print(tokens);
 		printf("\n");
 	}
 	

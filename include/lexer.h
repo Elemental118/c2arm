@@ -3,6 +3,8 @@
 
 #define MAX_ID_LEN 32
 
+#define MAX_TOKENS 100
+
 enum token_type {
 	TOKEN_ERR,
 
@@ -35,5 +37,7 @@ struct lexer *lexer_create_and_load(const char *filename, int prog_size);
 void lexer_free(struct lexer *l);
 
 struct token next_token(struct lexer *l);
+
+void tokens_print(struct token *tokens);
 
 #endif
