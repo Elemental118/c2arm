@@ -100,6 +100,7 @@ int get_precedence(enum token_type tt)
 		return 11;
 	case TOKEN_STAR:
 	case TOKEN_DIV:
+	case TOKEN_MOD:
 		return 12;
 	default:
 		return -1;
@@ -150,21 +151,31 @@ struct node *parse_expr(struct parser *p, int prec_min)
 		case TOKEN_PLUS:
 			strcpy(left->op, "+");
 			break;
+		
 		case TOKEN_MINUS:
 			strcpy(left->op, "-");
 			break;
+		
 		case TOKEN_STAR:
 			strcpy(left->op, "*");
 			break;
+		
 		case TOKEN_DIV:
 			strcpy(left->op, "/");
 			break;
+		
+		case TOKEN_MOD:
+			strcpy(left->op, "%");
+			break;
+		
 		case TOKEN_AMP:
 			strcpy(left->op, "&");
 			break;
+		
 		case TOKEN_PIPE:
 			strcpy(left->op, "|");
 			break;
+		
 		case TOKEN_XOR:
 			strcpy(left->op, "^");
 			break;
