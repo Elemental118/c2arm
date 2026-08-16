@@ -135,6 +135,16 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 			"msub", regtable_store(cg, instr->dest_name),
 			regtable_store(cg, "u2"), regtable_store(cg, op2_name), regtable_store(cg, op1_name));
 		return;
+	} else if (!strcmp(instr->op, "<") || !strcmp(instr->op, ">")) {
+		if (cg->pos + 1 == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+			"cmp", regtable_store(cg, op1_name), regtable_store(cg, op2_name));
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+			"cset", regtable_store(cg, instr->dest_name), !strcmp(instr->op, "<") ? "lt" : "gt");
+		return;
 	} else {
 		fprintf(stderr, "assembly gen error\n");
 		exit(1);
