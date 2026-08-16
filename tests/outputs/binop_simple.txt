@@ -1,0 +1,5 @@
+main:
+	mov    w9, #38
+	mov    w10, #44
+	mul    w11, w9, w10
+	mov    w12, w11

@@ -1,34 +1,3 @@
-VOID
-ID
-LPAREN
-VOID
-RPAREN
-LBRACE
-INT
-ID
-ASSIGN
-INT_LIT
-SEMI
-ID
-ASSIGN
-INT_LIT
-SEMI
-RBRACE
-EOF
-
-PROG
-    VOID FUNC main
-        ASSIGN
-            INT VAR x
-            INT 4
-        ASSIGN
-            INT VAR x
-            INT 5
-
-VOID FUNC main
-    INT x = 4
-    INT x = 5
-
 main:
-	mov    w9, #4
-	mov    w9, #5
+	mov    w9, #87
+	mov    w9, #51
