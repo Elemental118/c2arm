@@ -26,6 +26,7 @@ static const char *token_names[] = {
 	[TOKEN_MINUS] = "MINUS",
 	[TOKEN_STAR] = "STAR",
 	[TOKEN_DIV] = "DIV",
+	[TOKEN_MOD] = "MOD",
 	[TOKEN_AMP] = "AMP",
 	[TOKEN_PIPE] = "PIPE",
 	[TOKEN_XOR] = "XOR",
@@ -100,6 +101,10 @@ struct token next_token(struct lexer *l)
 	
 	case '/':
 		t.type = TOKEN_DIV;
+		break;
+	
+	case '%':
+		t.type = TOKEN_MOD;
 		break;
 	
 	case '&':
