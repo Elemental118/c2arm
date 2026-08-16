@@ -10,30 +10,56 @@
 struct irgen {
 	struct instr *instrs;
 	int pos;
+	int tmp_count;
 };
 
-static void irgen_stmt(struct irgen *irg, struct node *n)
+static struct operand irgen_expr(struct irgen *irg, struct node *n)
 {
-	if (irg->pos == MAX_INSTRS) {
-		fprintf(stderr, "too many IR instructions\n");
-		exit(1);
-	}
-	irg->instrs[irg->pos].i_type = INSTR_ASSIGN;
-	irg->instrs[irg->pos].d_type = n->children[0]->d_type;
-	strncpy(irg->instrs[irg->pos].dest_name, n->children[0]->name, MAX_ID_LEN - 1);
-	irg->instrs[irg->pos].dest_name[MAX_ID_LEN - 1] = '\0';
+	struct operand op;
+	op.d_type = DTYPE_INT;
+	if (n->n_type == NODE_INT_LIT) {
+		op.kind = OPERAND_LITERAL;
+		op.val = n->val;
+	} else if (n->n_type == NODE_VAR_NAME) {
+		op.kind = OPERAND_NAME;
+		strncpy(op.name, n->name, MAX_ID_LEN - 1);
+		op.name[MAX_ID_LEN - 1] = '\0';
+	} else if (n->n_type == NODE_BIN) {
+		op.kind = OPERAND_NAME;
+		struct operand left = irgen_expr(irg, n->children[0]);
+		struct operand right = irgen_expr(irg, n->children[1]);
+		sprintf(op.name, "t%d", irg->tmp_count);
 
-	if (n->children[1]->n_type == NODE_INT_LIT) {
-		irg->instrs[irg->pos].op1.kind = OPERAND_LITERAL;
-		irg->instrs[irg->pos++].op1.val = n->children[1]->val;
-	} else if (n->children[1]->n_type == NODE_VAR_NAME) {
-		irg->instrs[irg->pos].op1.kind = OPERAND_NAME;
-		strncpy(irg->instrs[irg->pos].op1.name, n->children[1]->name, MAX_ID_LEN - 1);
-		irg->instrs[irg->pos++].op1.name[MAX_ID_LEN - 1] = '\0';
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].op1 = left;
+		irg->instrs[irg->pos].op2 = right;
+
+		irg->instrs[irg->pos].i_type = INSTR_COMPUTE;
+		irg->instrs[irg->pos].d_type = DTYPE_INT;
+		strcpy(irg->instrs[irg->pos].op, n->op);
+		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", irg->tmp_count++);
 	} else {
 		fprintf(stderr, "IR gen error\n");
 		exit(1);
 	}
+	return op;
+}
+
+static void irgen_stmt(struct irgen *irg, struct node *n)
+{
+	struct operand right = irgen_expr(irg, n->children[1]);
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	irg->instrs[irg->pos].op1 = right;
+	irg->instrs[irg->pos].i_type = INSTR_ASSIGN;
+	irg->instrs[irg->pos].d_type = n->children[0]->d_type;
+	strncpy(irg->instrs[irg->pos].dest_name, n->children[0]->name, MAX_ID_LEN - 1);
+	irg->instrs[irg->pos++].dest_name[MAX_ID_LEN - 1] = '\0';
 }
 
 static void irgen_func(struct irgen *irg, struct node *n)
