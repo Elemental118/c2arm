@@ -97,7 +97,7 @@ int get_precedence(enum token_type tt)
 		return 7;
 	case TOKEN_LT:
 	case TOKEN_GT:
-		return 8;
+		return 9;
 	case TOKEN_PLUS:
 	case TOKEN_MINUS:
 		return 11;
