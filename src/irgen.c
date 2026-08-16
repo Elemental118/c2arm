@@ -129,6 +129,22 @@ void ir_print(struct instr *ir)
 			}
 			printf("\n");
 			break;
+		case INSTR_COMPUTE:
+			printf("    %s %s = %s %s ", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name,
+				ir[i].op1.d_type == DTYPE_INT ? "INT" : "VOID", ir[i].op);
+			if (ir[i].op1.kind == OPERAND_LITERAL) {
+				printf("%d", ir[i].op1.val);
+			} else {
+				printf("%s", ir[i].op1.name);
+			}
+			printf(", ");
+			if (ir[i].op2.kind == OPERAND_LITERAL) {
+				printf("%d", ir[i].op2.val);
+			} else {
+				printf("%s", ir[i].op2.name);
+			}
+			printf("\n");
+			break;
 		
 		case INSTR_FUNC_START:
 			printf("%s FUNC %s\n", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
