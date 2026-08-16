@@ -8,6 +8,7 @@ enum token_type {
 	TOKEN_ERR,
 
 	TOKEN_INT,
+	TOKEN_BOOL,
 	TOKEN_VOID,
 	TOKEN_ID,
 	TOKEN_LPAREN,

@@ -15,6 +15,7 @@ struct lexer {
 static const char *token_names[] = {
 	[TOKEN_ERR] = "ERR",
 	[TOKEN_INT] = "INT",
+	[TOKEN_BOOL] = "BOOL",
 	[TOKEN_VOID] = "VOID",
 	[TOKEN_ID] = "ID",
 	[TOKEN_LPAREN] = "LPAREN",
@@ -180,6 +181,8 @@ struct token next_token(struct lexer *l)
 		t.name[l->pos-- - original] = '\0';
 		if (!strcmp(t.name, "int")) {
 			t.type = TOKEN_INT;
+		} else if (!strcmp(t.name, "bool")) {
+			t.type = TOKEN_BOOL;
 		} else if (!strcmp(t.name, "void")) {
 			t.type = TOKEN_VOID;
 		} else {
