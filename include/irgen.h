@@ -20,24 +20,26 @@ enum instr_type {
 	INSTR_EOF
 };
 
+struct operand {
+	enum operand_kind kind;
+	enum data_type d_type;
+	union {
+		char name[32];
+		int  val;
+	};
+};
+
 struct instr {
 	enum instr_type i_type;
 	enum data_type d_type;
 	char dest_name[32];
 
-	enum operand_kind op1_kind;
-	union {
-		char op1_name[32];
-		int  op1_val;
-	};
+	struct operand op1;
 
 	// ONLY IF INSTR_COMPUTE
-	char op;
-	enum operand_kind op2_kind;
-	union {
-		char op2_name[32];
-		int  op2_val;
-	};
+	char op[3];
+	struct operand op2;
+	
 };
 
 struct irgen *irgen_create_and_load(void);

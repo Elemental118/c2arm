@@ -24,12 +24,12 @@ static void irgen_stmt(struct irgen *irg, struct node *n)
 	irg->instrs[irg->pos].dest_name[MAX_ID_LEN - 1] = '\0';
 
 	if (n->children[1]->n_type == NODE_INT_LIT) {
-		irg->instrs[irg->pos].op1_kind = OPERAND_LITERAL;
-		irg->instrs[irg->pos++].op1_val = n->children[1]->val;
+		irg->instrs[irg->pos].op1.kind = OPERAND_LITERAL;
+		irg->instrs[irg->pos++].op1.val = n->children[1]->val;
 	} else if (n->children[1]->n_type == NODE_VAR_NAME) {
-		irg->instrs[irg->pos].op1_kind = OPERAND_NAME;
-		strncpy(irg->instrs[irg->pos].op1_name, n->children[1]->name, MAX_ID_LEN - 1);
-		irg->instrs[irg->pos++].op1_name[MAX_ID_LEN - 1] = '\0';
+		irg->instrs[irg->pos].op1.kind = OPERAND_NAME;
+		strncpy(irg->instrs[irg->pos].op1.name, n->children[1]->name, MAX_ID_LEN - 1);
+		irg->instrs[irg->pos++].op1.name[MAX_ID_LEN - 1] = '\0';
 	} else {
 		fprintf(stderr, "IR gen error\n");
 		exit(1);
@@ -96,10 +96,10 @@ void ir_print(struct instr *ir)
 		switch (ir[i].i_type) {
 		case INSTR_ASSIGN:
 			printf("    %s %s = ", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
-			if (ir[i].op1_kind == OPERAND_LITERAL) {
-				printf("%d", ir[i].op1_val);
+			if (ir[i].op1.kind == OPERAND_LITERAL) {
+				printf("%d", ir[i].op1.val);
 			} else {
-				printf("%s", ir[i].op1_name);
+				printf("%s", ir[i].op1.name);
 			}
 			printf("\n");
 			break;
