@@ -123,6 +123,18 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 		strcpy(opcode, "orr");
 	} else if (!strcmp(instr->op, "^")) {
 		strcpy(opcode, "eor");
+	} else if (!strcmp(instr->op, "%")) {
+		if (cg->pos + 1 == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s, %s",
+			"sdiv", regtable_store(cg, "u2"),
+			regtable_store(cg, op1_name), regtable_store(cg, op2_name));
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s, %s, %s",
+			"msub", regtable_store(cg, instr->dest_name),
+			regtable_store(cg, "u2"), regtable_store(cg, op2_name), regtable_store(cg, op1_name));
+		return;
 	} else {
 		fprintf(stderr, "assembly gen error\n");
 		exit(1);
