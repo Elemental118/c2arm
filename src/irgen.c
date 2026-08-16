@@ -16,7 +16,7 @@ struct irgen {
 static struct operand irgen_expr(struct irgen *irg, struct node *n)
 {
 	struct operand op;
-	op.d_type = DTYPE_INT;
+	op.d_type = n->d_type;
 	if (n->n_type == NODE_INT_LIT) {
 		op.kind = OPERAND_LITERAL;
 		op.val = n->val;
@@ -38,7 +38,7 @@ static struct operand irgen_expr(struct irgen *irg, struct node *n)
 		irg->instrs[irg->pos].op2 = right;
 
 		irg->instrs[irg->pos].i_type = INSTR_COMPUTE;
-		irg->instrs[irg->pos].d_type = DTYPE_INT;
+		irg->instrs[irg->pos].d_type = n->d_type;
 		strcpy(irg->instrs[irg->pos].op, n->op);
 		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", irg->tmp_count++);
 	} else {
@@ -121,7 +121,7 @@ void ir_print(struct instr *ir)
 	for (int i = 0; ir[i].i_type != INSTR_EOF; i++) {
 		switch (ir[i].i_type) {
 		case INSTR_ASSIGN:
-			printf("    %s %s = ", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
+			printf("    %s %s = ", ir[i].d_type == DTYPE_INT ? "INT" : "BOOL", ir[i].dest_name);
 			if (ir[i].op1.kind == OPERAND_LITERAL) {
 				printf("%d", ir[i].op1.val);
 			} else {
@@ -130,8 +130,8 @@ void ir_print(struct instr *ir)
 			printf("\n");
 			break;
 		case INSTR_COMPUTE:
-			printf("    %s %s = %s %s ", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name,
-				ir[i].op1.d_type == DTYPE_INT ? "INT" : "VOID", ir[i].op);
+			printf("    %s %s = %s %s ", ir[i].d_type == DTYPE_INT ? "INT" : "BOOL", ir[i].dest_name,
+				ir[i].op1.d_type == DTYPE_INT ? "INT" : "BOOL", ir[i].op);
 			if (ir[i].op1.kind == OPERAND_LITERAL) {
 				printf("%d", ir[i].op1.val);
 			} else {
