@@ -108,8 +108,27 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 		fprintf(stderr, "too many assembly instructions\n");
 		exit(1);
 	}
+	char opcode[5];
+	if (!strcmp(instr->op, "+")) {
+		strcpy(opcode, "add");
+	} else if (!strcmp(instr->op, "-")) {
+		strcpy(opcode, "sub");
+	} else if (!strcmp(instr->op, "*")) {
+		strcpy(opcode, "mul");
+	} else if (!strcmp(instr->op, "/")) {
+		strcpy(opcode, "sdiv");
+	} else if (!strcmp(instr->op, "&")) {
+		strcpy(opcode, "and");
+	} else if (!strcmp(instr->op, "|")) {
+		strcpy(opcode, "orr");
+	} else if (!strcmp(instr->op, "^")) {
+		strcpy(opcode, "eor");
+	} else {
+		fprintf(stderr, "assembly gen error\n");
+		exit(1);
+	}
 	sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s, %s",
-		!strcmp(instr->op, "*") ? "mul" : "add", regtable_store(cg, instr->dest_name),
+		opcode, regtable_store(cg, instr->dest_name),
 		regtable_store(cg, op1_name), regtable_store(cg, op2_name));
 }
 
@@ -142,7 +161,7 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			return;
 		case INSTR_ERR:
 		default:
-			fprintf(stderr, "unknown assembly instruction\n");
+			fprintf(stderr, "assembly gen error\n");
 			exit(1);
 		}
 	}
