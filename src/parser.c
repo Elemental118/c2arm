@@ -97,7 +97,12 @@ int get_precedence(enum token_type tt)
 		return 7;
 	case TOKEN_LT:
 	case TOKEN_GT:
+	case TOKEN_LE:
+	case TOKEN_GE:
 		return 9;
+	case TOKEN_EQ:
+	case TOKEN_NE:
+		return 10;
 	case TOKEN_PLUS:
 	case TOKEN_MINUS:
 		return 11;
@@ -189,6 +194,22 @@ struct node *parse_expr(struct parser *p, int prec_min)
 		
 		case TOKEN_GT:
 			strcpy(left->op, ">");
+			break;
+		
+		case TOKEN_LE:
+			strcpy(left->op, "<=");
+			break;
+		
+		case TOKEN_GE:
+			strcpy(left->op, ">=");
+			break;
+		
+		case TOKEN_EQ:
+			strcpy(left->op, "==");
+			break;
+		
+		case TOKEN_NE:
+			strcpy(left->op, "!=");
 			break;
 		
 		default:
