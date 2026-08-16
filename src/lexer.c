@@ -33,6 +33,10 @@ static const char *token_names[] = {
 	[TOKEN_XOR] = "XOR",
 	[TOKEN_LT] = "LT",
 	[TOKEN_GT] = "GT",
+	[TOKEN_LE] = "LE",
+	[TOKEN_GE] = "GE",
+	[TOKEN_EQ] = "EQ",
+	[TOKEN_NE] = "NE",
 	[TOKEN_ASSIGN] = "ASSIGN",
 	[TOKEN_INT_LIT] = "INT_LIT",
 	[TOKEN_EOF] = "EOF"
@@ -123,11 +127,21 @@ struct token next_token(struct lexer *l)
 		break;
 	
 	case '<':
-		t.type = TOKEN_LT;
+		if (l->prog[l->pos + 1] == '=') {
+			l->pos++;
+			t.type = TOKEN_LE;
+		} else {
+			t.type = TOKEN_LT;
+		}
 		break;
 	
 	case '>':
-		t.type = TOKEN_GT;
+		if (l->prog[l->pos + 1] == '=') {
+			l->pos++;
+			t.type = TOKEN_GE;
+		} else {
+			t.type = TOKEN_GT;
+		}
 		break;
 	
 	case ';':
@@ -135,7 +149,21 @@ struct token next_token(struct lexer *l)
 		break;
 	
 	case '=':
-		t.type = TOKEN_ASSIGN;
+		if (l->prog[l->pos + 1] == '=') {
+			l->pos++;
+			t.type = TOKEN_EQ;
+		} else {
+			t.type = TOKEN_ASSIGN;
+		}
+		break;
+	
+	case '!':
+		if (l->prog[l->pos + 1] == '=') {
+			l->pos++;
+			t.type = TOKEN_NE;
+		} else {
+			t.type = TOKEN_ERR;
+		}
 		break;
 	
 	case '\0':
