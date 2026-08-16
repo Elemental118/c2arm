@@ -59,7 +59,7 @@ char *regtable_store(struct codegen *cg, char *var_name)
 	exit(1);
 }
 
-static void codegen_stmt(struct codegen *cg, struct instr *instr)
+static void codegen_assign(struct codegen *cg, struct instr *instr)
 {
 	if (cg->pos == MAX_ASM_INSTRS) {
 		fprintf(stderr, "too many assembly instructions\n");
@@ -72,6 +72,45 @@ static void codegen_stmt(struct codegen *cg, struct instr *instr)
 		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
 			"mov", regtable_store(cg, instr->dest_name), regtable_store(cg, instr->op1.name));
 	}
+}
+
+static void codegen_compute(struct codegen *cg, struct instr *instr)
+{
+	char op1_name[32];
+	char op2_name[32];
+	if (instr->op1.kind == OPERAND_LITERAL) {
+		if (cg->pos == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d",
+			"mov", regtable_store(cg, "u0"), instr->op1.val);
+		strcpy(op1_name, "u0");
+	} else {
+		strncpy(op1_name, instr->op1.name, MAX_ID_LEN - 1);
+		op1_name[MAX_ID_LEN - 1] = '\0';
+	}
+
+	if (instr->op2.kind == OPERAND_LITERAL) {
+		if (cg->pos == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d",
+			"mov", regtable_store(cg, "u1"), instr->op2.val);
+		strcpy(op2_name, "u1");
+	} else {
+		strncpy(op2_name, instr->op2.name, MAX_ID_LEN - 1);
+		op2_name[MAX_ID_LEN - 1] = '\0';
+	}
+
+	if (cg->pos == MAX_ASM_INSTRS) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s, %s",
+		!strcmp(instr->op, "*") ? "mul" : "add", regtable_store(cg, instr->dest_name),
+		regtable_store(cg, op1_name), regtable_store(cg, op2_name));
 }
 
 static void codegen_func_stmt(struct codegen *cg, struct instr *instr)
@@ -89,7 +128,10 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 		struct instr *instr = &ir[i];
 		switch (instr->i_type) {
 		case INSTR_ASSIGN:
-			codegen_stmt(cg, instr);
+			codegen_assign(cg, instr);
+			break;
+		case INSTR_COMPUTE:
+			codegen_compute(cg, instr);
 			break;
 		case INSTR_FUNC_START:
 			codegen_func_stmt(cg, instr);
