@@ -30,6 +30,8 @@ static const char *token_names[] = {
 	[TOKEN_AMP] = "AMP",
 	[TOKEN_PIPE] = "PIPE",
 	[TOKEN_XOR] = "XOR",
+	[TOKEN_LT] = "LT",
+	[TOKEN_GT] = "GT",
 	[TOKEN_ASSIGN] = "ASSIGN",
 	[TOKEN_INT_LIT] = "INT_LIT",
 	[TOKEN_EOF] = "EOF"
@@ -117,6 +119,14 @@ struct token next_token(struct lexer *l)
 	
 	case '^':
 		t.type = TOKEN_XOR;
+		break;
+	
+	case '<':
+		t.type = TOKEN_LT;
+		break;
+	
+	case '>':
+		t.type = TOKEN_GT;
 		break;
 	
 	case ';':
