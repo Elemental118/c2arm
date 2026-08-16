@@ -19,7 +19,8 @@ enum data_type {
 
 	DTYPE_ROOT,
 	DTYPE_INT,
-	DTYPE_VOID
+	DTYPE_VOID,
+	DTYPE_BOOL
 };
 
 struct node {

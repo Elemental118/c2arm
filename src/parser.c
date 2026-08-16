@@ -95,6 +95,9 @@ int get_precedence(enum token_type tt)
 		return 6;
 	case TOKEN_AMP:
 		return 7;
+	case TOKEN_LT:
+	case TOKEN_GT:
+		return 8;
 	case TOKEN_PLUS:
 	case TOKEN_MINUS:
 		return 11;
@@ -180,6 +183,14 @@ struct node *parse_expr(struct parser *p, int prec_min)
 			strcpy(left->op, "^");
 			break;
 		
+		case TOKEN_LT:
+			strcpy(left->op, "<");
+			break;
+		
+		case TOKEN_GT:
+			strcpy(left->op, ">");
+			break;
+		
 		default:
 			strcpy(left->op, "?");
 			break;
@@ -192,14 +203,21 @@ static struct node *parse_stmt(struct parser *p)
 {
 	// Shared
 	bool declare = false;
-	if (peek(p).type == TOKEN_INT) {
+	enum token_type tt = peek(p).type;
+	if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
 		declare = true;
 		advance(p);
 	}
 	char var_name[32];
 	strcpy(var_name, expect(p, TOKEN_ID).name);
 	if (declare) {
-		symtable_store(&p->symtable, var_name, DTYPE_INT);
+		enum data_type dt;
+		if (tt == TOKEN_INT) {
+			dt = DTYPE_INT;
+		} else {
+			dt = DTYPE_BOOL;
+		}
+		symtable_store(&p->symtable, var_name, dt);
 	} else {
 		if (symtable_load(&p->symtable, var_name) == DTYPE_ERR) {
 			fprintf(stderr, "unknown symbol %s\n", var_name);
@@ -219,7 +237,7 @@ static struct node *parse_stmt(struct parser *p)
 	struct node *left = node_create(0, NODE_VAR_NAME);
 	parent->children[0] = left;
 	strcpy(left->name, var_name);
-	left->d_type = DTYPE_INT;
+	left->d_type = symtable_load(&p->symtable, left->name);
 
 	parent->children[1] = parse_expr(p, 0);
 	expect(p, TOKEN_SEMI);
