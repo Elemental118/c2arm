@@ -148,6 +148,7 @@ struct node *parse_unary(struct parser *p)
 		n = node_create(1, NODE_UN);
 		n->children_num = 1;
 		n->children[0] = parse_unary(p);
+		n->d_type = DTYPE_INT;
 		switch (next.type) {
 		case TOKEN_MINUS:
 			strcpy(n->op, "-");
@@ -190,58 +191,72 @@ struct node *parse_expr(struct parser *p, int prec_min)
 		switch (next.type) {
 		case TOKEN_PLUS:
 			strcpy(left->op, "+");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_MINUS:
 			strcpy(left->op, "-");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_STAR:
 			strcpy(left->op, "*");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_DIV:
 			strcpy(left->op, "/");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_MOD:
 			strcpy(left->op, "%");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_AMP:
 			strcpy(left->op, "&");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_PIPE:
 			strcpy(left->op, "|");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_XOR:
 			strcpy(left->op, "^");
+			left->d_type = DTYPE_INT;
 			break;
 		
 		case TOKEN_LT:
 			strcpy(left->op, "<");
+			left->d_type = DTYPE_BOOL;
 			break;
 		
 		case TOKEN_GT:
 			strcpy(left->op, ">");
+			left->d_type = DTYPE_BOOL;
 			break;
 		
 		case TOKEN_LE:
 			strcpy(left->op, "<=");
+			left->d_type = DTYPE_BOOL;
 			break;
 		
 		case TOKEN_GE:
 			strcpy(left->op, ">=");
+			left->d_type = DTYPE_BOOL;
 			break;
 		
 		case TOKEN_EQ:
 			strcpy(left->op, "==");
+			left->d_type = DTYPE_BOOL;
 			break;
 		
 		case TOKEN_NE:
 			strcpy(left->op, "!=");
+			left->d_type = DTYPE_BOOL;
 			break;
 		
 		default:
