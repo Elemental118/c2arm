@@ -199,6 +199,21 @@ void ir_print(struct instr *ir)
 			printf("\n");
 			break;
 		
+		case INSTR_JMP:
+			printf("    %s %s %s, ", "JMP", ir[i].op, ir[i].dest_name);
+			if (ir[i].op1.kind == OPERAND_LITERAL) {
+				printf("%d", ir[i].op1.val);
+			} else {
+				printf("%s", ir[i].op1.name);
+			}
+			printf("\n");
+			break;
+		
+		case INSTR_LABEL:
+			printf("%s:\n", ir[i].dest_name);
+			break;
+		
+		
 		case INSTR_FUNC_START:
 			printf("%s FUNC %s\n", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
 			break;
