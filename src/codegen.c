@@ -8,7 +8,7 @@
 
 #define MAX_ASM_INSTRS 100
 #define MAX_ASM_INSTR_LEN 33
-#define MAX_REGS 7
+#define MAX_REGS 20
 #define REGS_BEGIN 9
 
 struct reg {
