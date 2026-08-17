@@ -308,6 +308,12 @@ static struct node *parse_if(struct parser *p)
 	parent->children[0] = parse_expr(p, 0);
 	expect(p, TOKEN_RPAREN);
 	parent->children[1] = parse_stmt(p);
+	if (peek(p).type == TOKEN_ELSE) {
+		parent->children_num = 3;
+		parent->children = realloc(parent->children, parent->children_num * sizeof(*parent->children));
+		advance(p);
+		parent->children[2] = parse_stmt(p);
+	}
 	return parent;
 }
 
