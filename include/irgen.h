@@ -14,7 +14,8 @@ enum instr_type {
 	INSTR_ERR,
 	
 	INSTR_ASSIGN,
-	INSTR_COMPUTE,
+	INSTR_UN,
+	INSTR_BIN,
 	INSTR_FUNC_START,
 	INSTR_FUNC_END,
 	INSTR_EOF
@@ -36,7 +37,7 @@ struct instr {
 
 	struct operand op1;
 
-	// ONLY IF INSTR_COMPUTE
+	// ONLY IF INSTR_BIN
 	char op[3];
 	struct operand op2;
 	

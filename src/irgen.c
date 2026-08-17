@@ -24,6 +24,21 @@ static struct operand irgen_expr(struct irgen *irg, struct node *n)
 		op.kind = OPERAND_NAME;
 		strncpy(op.name, n->name, MAX_ID_LEN - 1);
 		op.name[MAX_ID_LEN - 1] = '\0';
+	} else if (n->n_type == NODE_UN) {
+		op.kind = OPERAND_NAME;
+		struct operand left = irgen_expr(irg, n->children[0]);
+		sprintf(op.name, "t%d", irg->tmp_count);
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].op1 = left;
+
+		irg->instrs[irg->pos].i_type = INSTR_UN;
+		irg->instrs[irg->pos].d_type = n->d_type;
+		strcpy(irg->instrs[irg->pos].op, n->op);
+		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", irg->tmp_count++);
 	} else if (n->n_type == NODE_BIN) {
 		op.kind = OPERAND_NAME;
 		struct operand left = irgen_expr(irg, n->children[0]);
@@ -37,7 +52,7 @@ static struct operand irgen_expr(struct irgen *irg, struct node *n)
 		irg->instrs[irg->pos].op1 = left;
 		irg->instrs[irg->pos].op2 = right;
 
-		irg->instrs[irg->pos].i_type = INSTR_COMPUTE;
+		irg->instrs[irg->pos].i_type = INSTR_BIN;
 		irg->instrs[irg->pos].d_type = n->d_type;
 		strcpy(irg->instrs[irg->pos].op, n->op);
 		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", irg->tmp_count++);
@@ -129,7 +144,8 @@ void ir_print(struct instr *ir)
 			}
 			printf("\n");
 			break;
-		case INSTR_COMPUTE:
+		case INSTR_UN:
+		case INSTR_BIN:
 			printf("    %s %s = %s %s ", ir[i].d_type == DTYPE_INT ? "INT" : "BOOL", ir[i].dest_name,
 				ir[i].op1.d_type == DTYPE_INT ? "INT" : "BOOL", ir[i].op);
 			if (ir[i].op1.kind == OPERAND_LITERAL) {
@@ -137,11 +153,13 @@ void ir_print(struct instr *ir)
 			} else {
 				printf("%s", ir[i].op1.name);
 			}
-			printf(", ");
-			if (ir[i].op2.kind == OPERAND_LITERAL) {
-				printf("%d", ir[i].op2.val);
-			} else {
-				printf("%s", ir[i].op2.name);
+			if (ir[i].i_type == INSTR_BIN) {
+				printf(", ");
+				if (ir[i].op2.kind == OPERAND_LITERAL) {
+					printf("%d", ir[i].op2.val);
+				} else {
+					printf("%s", ir[i].op2.name);
+				}
 			}
 			printf("\n");
 			break;

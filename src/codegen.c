@@ -187,7 +187,8 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 		case INSTR_ASSIGN:
 			codegen_assign(cg, instr);
 			break;
-		case INSTR_COMPUTE:
+		case INSTR_UN:
+		case INSTR_BIN:
 			codegen_compute(cg, instr);
 			break;
 		case INSTR_FUNC_START:
