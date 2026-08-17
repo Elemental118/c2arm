@@ -3,6 +3,7 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 
 ## Currently Supports
 * Bare and merged `int`/`bool` declarations, plus reassignment to `int`/`bool` literal or variable
+* All unary int/int (`-`, `~`) and bool/int (`!`) operators with no parentheses
 * All binary int/int operators (`+`, `-`, `*`, `/`, `&`, `|`, `^`, `%`) with no parentheses
 * All comparison bool/int operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
 * `void`/`void` functions
