@@ -111,7 +111,7 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 	char opcode[5];
 	if (!strcmp(instr->op, "+")) {
 		strcpy(opcode, "add");
-	} else if (!strcmp(instr->op, "-")) {
+	} else if (!strcmp(instr->op, "-") && instr->i_type == INSTR_BIN) {
 		strcpy(opcode, "sub");
 	} else if (!strcmp(instr->op, "*")) {
 		strcpy(opcode, "mul");
@@ -160,6 +160,26 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 		}
 		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
 			"cset", regtable_store(cg, instr->dest_name), cset_code);
+		return;
+	} else if (!strcmp(instr->op, "-")) {
+		if (instr->i_type == INSTR_UN) {
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+				"neg", regtable_store(cg, instr->dest_name), regtable_store(cg, op1_name));
+		}
+		return;
+	} else if (!strcmp(instr->op, "~")) {
+		if (instr->i_type == INSTR_UN) {
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+				"mvn", regtable_store(cg, instr->dest_name), regtable_store(cg, op1_name));
+		}
+		return;
+	} else if (!strcmp(instr->op, "!")) {
+		if (instr->i_type == INSTR_UN) {
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+				"cmp", regtable_store(cg, op1_name), "#0");
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s",
+				"cset", regtable_store(cg, instr->dest_name), "eq");
+		}
 		return;
 	} else {
 		fprintf(stderr, "assembly gen error\n");
