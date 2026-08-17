@@ -4,6 +4,7 @@
 #include "parser.h"
 
 #define MAX_INSTRS 100
+#define MAX_LABEL_LEN 5
 
 enum operand_kind {
 	OPERAND_NAME,
@@ -16,6 +17,8 @@ enum instr_type {
 	INSTR_ASSIGN,
 	INSTR_UN,
 	INSTR_BIN,
+	INSTR_JMP,
+	INSTR_LABEL,
 	INSTR_FUNC_START,
 	INSTR_FUNC_END,
 	INSTR_EOF
