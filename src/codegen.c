@@ -190,6 +190,45 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 		regtable_store(cg, op1_name), regtable_store(cg, op2_name));
 }
 
+static void codegen_if(struct codegen *cg, struct instr *instr)
+{
+	char op1_name[32];
+	if (instr->op1.kind == OPERAND_LITERAL) {
+		if (cg->pos == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d",
+			"mov", regtable_store(cg, "u0"), instr->op1.val);
+		strcpy(op1_name, "u0");
+	} else {
+		strncpy(op1_name, instr->op1.name, MAX_ID_LEN - 1);
+		op1_name[MAX_ID_LEN - 1] = '\0';
+	}
+	
+	if (cg->pos == MAX_ASM_INSTRS) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	if (!strcmp(instr->op, "j")) {
+		sprintf(cg->assembly[cg->pos++], "\t%-7s %s", "b", instr->dest_name);
+	} else {
+		if (cg->pos == MAX_ASM_INSTRS - 1) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s", "cmp", regtable_store(cg, op1_name), "#0");
+		if (!strcmp(instr->op, "t")) {
+			sprintf(cg->assembly[cg->pos++], "\t%-7s %s", "b.ne", instr->dest_name);
+		} else if (!strcmp(instr->op, "f")) {
+			sprintf(cg->assembly[cg->pos++], "\t%-7s %s", "b.eq", instr->dest_name);
+		} else {
+			fprintf(stderr, "assembly gen error\n");
+			exit(1);
+		}
+	}	
+}
+
 static void codegen_func_stmt(struct codegen *cg, struct instr *instr)
 {
 	if (cg->pos == MAX_ASM_INSTRS) {
@@ -211,6 +250,8 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 		case INSTR_BIN:
 			codegen_compute(cg, instr);
 			break;
+		case INSTR_JMP:
+			codegen_if(cg, instr);
 		case INSTR_FUNC_START:
 			codegen_func_stmt(cg, instr);
 			break;
