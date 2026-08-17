@@ -211,7 +211,7 @@ static void codegen_jmp(struct codegen *cg, struct instr *instr)
 		exit(1);
 	}
 	if (!strcmp(instr->op, "j")) {
-		sprintf(cg->assembly[cg->pos++], "\t%-7s %s", "b", instr->dest_name);
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s", "b", instr->dest_name);
 	} else {
 		if (cg->pos == MAX_ASM_INSTRS - 1) {
 			fprintf(stderr, "too many assembly instructions\n");
