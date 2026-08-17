@@ -205,7 +205,7 @@ static void codegen_if(struct codegen *cg, struct instr *instr)
 		strncpy(op1_name, instr->op1.name, MAX_ID_LEN - 1);
 		op1_name[MAX_ID_LEN - 1] = '\0';
 	}
-	
+
 	if (cg->pos == MAX_ASM_INSTRS) {
 		fprintf(stderr, "too many assembly instructions\n");
 		exit(1);
@@ -229,7 +229,7 @@ static void codegen_if(struct codegen *cg, struct instr *instr)
 	}	
 }
 
-static void codegen_func_stmt(struct codegen *cg, struct instr *instr)
+static void codegen_label(struct codegen *cg, struct instr *instr)
 {
 	if (cg->pos == MAX_ASM_INSTRS) {
 		fprintf(stderr, "too many assembly instructions\n");
@@ -252,8 +252,10 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			break;
 		case INSTR_JMP:
 			codegen_if(cg, instr);
+			break;
+		case INSTR_LABEL:
 		case INSTR_FUNC_START:
-			codegen_func_stmt(cg, instr);
+			codegen_label(cg, instr);
 			break;
 		case INSTR_FUNC_END:
 			break;
