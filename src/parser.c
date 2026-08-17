@@ -139,9 +139,41 @@ struct node *parse_primary(struct parser *p)
 	return n;
 }
 
+struct node *parse_unary(struct parser *p)
+{
+	struct token next = peek(p);
+	if (next.type == TOKEN_MINUS || next.type == TOKEN_BNOT || next.type == TOKEN_LNOT) {
+		advance(p);
+		struct node *n;
+		n = node_create(1, NODE_UN);
+		n->children_num = 1;
+		n->children[0] = parse_unary(p);
+		switch (next.type) {
+		case TOKEN_MINUS:
+			strcpy(n->op, "-");
+			break;
+		
+		case TOKEN_BNOT:
+			strcpy(n->op, "~");
+			break;
+		
+		case TOKEN_LNOT:
+			strcpy(n->op, "!");
+			break;
+		
+		default:
+			strcpy(n->op, "?");
+			break;
+		}
+		return n;
+	} else {
+		return parse_primary(p);
+	}
+}
+
 struct node *parse_expr(struct parser *p, int prec_min)
 {
-	struct node *left = parse_primary(p);
+	struct node *left = parse_unary(p);
 	for (;;) {
 		struct token next = peek(p);
 		int prec_next = get_precedence(next.type);
@@ -336,6 +368,9 @@ static void ast_print_helper(struct node *n, int depth)
 		break;
 	case NODE_INT_LIT:
 		printf("INT %d\n", n->val);
+		break;
+	case NODE_UN:
+		printf("UN %s\n", n->op);
 		break;
 	case NODE_BIN:
 		printf("BIN %s\n", n->op);

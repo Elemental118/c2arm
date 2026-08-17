@@ -7,6 +7,7 @@ enum node_type {
 	NODE_ERR,
 
 	NODE_PROG,
+	NODE_UN,
 	NODE_BIN,
 	NODE_ASSIGN,
 	NODE_FUNC,
