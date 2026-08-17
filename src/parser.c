@@ -9,6 +9,7 @@
 #define MAX_STMTS 100
 #define MAX_FUNCS 10
 #define MAX_SYMS 10
+#define MAX_SYM_STACK 10
 
 struct sym {
 	char name[32];
@@ -18,6 +19,8 @@ struct sym {
 struct symtable {
 	struct sym table[MAX_SYMS];
 	int pos;
+	int stack[MAX_SYM_STACK];
+	int sp;
 };
 
 struct parser {
@@ -74,6 +77,16 @@ static void symtable_store(struct symtable *s, char *name, enum data_type type)
 	strncpy(s->table[s->pos].name, name, MAX_ID_LEN - 1);
 	s->table[s->pos].name[MAX_ID_LEN - 1] = '\0';
 	s->table[s->pos++].type = type;
+}
+
+static void sym_stack_push(struct symtable *s)
+{
+	s->stack[s->sp++] = s->pos;
+}
+
+static void sym_stack_pop(struct symtable *s)
+{
+	s->pos = s->stack[--s->sp];
 }
 
 static struct node *node_create(int children_num, enum node_type nt)
@@ -322,6 +335,7 @@ static struct node *parse_block(struct parser *p)
 {
 	struct node *block = node_create(MAX_STMTS, NODE_BLOCK);
 	expect(p, TOKEN_LBRACE);
+	sym_stack_push(&p->symtable);
 	for (int i = 0; peek(p).type != TOKEN_RBRACE; i++) {
 		struct node *n = parse_stmt(p);
 		if (!n) {
@@ -331,6 +345,7 @@ static struct node *parse_block(struct parser *p)
 			block->children_num++;
 		}
 	}
+	sym_stack_pop(&p->symtable);
 	advance(p);
 	return block;
 }
