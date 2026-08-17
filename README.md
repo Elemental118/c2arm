@@ -6,6 +6,7 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 * All unary int/int (`-`, `~`) and bool/int (`!`) operators with no parentheses
 * All binary int/int operators (`+`, `-`, `*`, `/`, `&`, `|`, `^`, `%`) with no parentheses
 * All comparison bool/int operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
+* `=` as a first-class operator with return value
 * Blocks (`{}`) with proper variable scoping/shadowing
 * `if`/`else` statements with and without blocks
 * `void`/`void` functions
