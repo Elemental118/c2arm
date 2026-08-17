@@ -17,7 +17,6 @@ static const char *token_names[] = {
 	[TOKEN_INT] = "INT",
 	[TOKEN_BOOL] = "BOOL",
 	[TOKEN_VOID] = "VOID",
-	[TOKEN_ID] = "ID",
 	[TOKEN_LPAREN] = "LPAREN",
 	[TOKEN_RPAREN] = "RPAREN",
 	[TOKEN_LBRACE] = "LBRACE",
@@ -40,7 +39,18 @@ static const char *token_names[] = {
 	[TOKEN_BNOT] = "BNOT",
 	[TOKEN_LNOT] = "LNOT",
 	[TOKEN_IF] = "IF",
+	[TOKEN_ELSE] = "ELSE",
+	[TOKEN_WHILE] = "WHILE",
+	[TOKEN_DO] = "DO",
+	[TOKEN_FOR] = "FOR",
+	[TOKEN_BRK] = "BRK",
+	[TOKEN_CONT] = "CONT",
+	[TOKEN_SWITCH] = "SWITCH",
+	[TOKEN_CASE] = "CASE",
+	[TOKEN_DEFAULT] = "DEFAULT",
+	[TOKEN_GOTO] = "GOTO",
 	[TOKEN_ASSIGN] = "ASSIGN",
+	[TOKEN_ID] = "ID",
 	[TOKEN_INT_LIT] = "INT_LIT",
 	[TOKEN_EOF] = "EOF"
 };
@@ -222,6 +232,26 @@ struct token next_token(struct lexer *l)
 			t.type = TOKEN_VOID;
 		} else if (!strcmp(t.name, "if")) {
 			t.type = TOKEN_IF;
+		} else if (!strcmp(t.name, "else")) {
+			t.type = TOKEN_ELSE;
+		} else if (!strcmp(t.name, "while")) {
+			t.type = TOKEN_WHILE;
+		} else if (!strcmp(t.name, "do")) {
+			t.type = TOKEN_DO;
+		} else if (!strcmp(t.name, "for")) {
+			t.type = TOKEN_FOR;
+		} else if (!strcmp(t.name, "switch")) {
+			t.type = TOKEN_SWITCH;
+		} else if (!strcmp(t.name, "case")) {
+			t.type = TOKEN_CASE;
+		} else if (!strcmp(t.name, "break")) {
+			t.type = TOKEN_BRK;
+		} else if (!strcmp(t.name, "continue")) {
+			t.type = TOKEN_CONT;
+		} else if (!strcmp(t.name, "default")) {
+			t.type = TOKEN_DEFAULT;
+		} else if (!strcmp(t.name, "goto")) {
+			t.type = TOKEN_GOTO;
 		} else {
 			t.type = TOKEN_ID;
 		}
