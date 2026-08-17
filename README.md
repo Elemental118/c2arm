@@ -7,6 +7,7 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 * All binary int/int operators (`+`, `-`, `*`, `/`, `&`, `|`, `^`, `%`) with no parentheses
 * All comparison bool/int operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
 * Blocks (`{}`) with proper variable scoping/shadowing
+* `if` statements with and without blocks, no `else` yet
 * `void`/`void` functions
 * Single `.c` file, no libraries or headers
 
