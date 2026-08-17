@@ -393,6 +393,9 @@ static void ast_print_helper(struct node *n, int depth)
 	case NODE_FUNC:
 		printf("%s FUNC %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
 		break;
+	case NODE_BLOCK:
+		printf("BLOCK\n");
+		break;
 	case NODE_ASSIGN:
 		printf("ASSIGN\n");
 		break;
