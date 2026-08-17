@@ -13,6 +13,7 @@
 
 struct sym {
 	char name[32];
+	int id;
 	enum data_type type;
 };
 
@@ -21,6 +22,7 @@ struct symtable {
 	int pos;
 	int stack[MAX_SYM_STACK];
 	int sp;
+	int id_counter;
 };
 
 struct parser {
@@ -54,31 +56,6 @@ static struct token expect(struct parser *p, enum token_type t)
 	}
 }
 
-static enum data_type symtable_load(struct symtable *s, char *name)
-{
-	for (int i = 0; i < s->pos; i++) {
-		if (!strcmp(s->table[i].name, name)) {
-			return s->table[i].type;
-		}
-	}
-	return DTYPE_ERR;
-}
-
-static void symtable_store(struct symtable *s, char *name, enum data_type type)
-{
-	if (s->pos == MAX_SYMS) {
-		fprintf(stderr, "too many symbols\n");
-		exit(1);
-	}
-	if (symtable_load(s, name) != DTYPE_ERR) {
-		fprintf(stderr, "duplicate symbol %s\n", name);
-		exit(1);
-	}
-	strncpy(s->table[s->pos].name, name, MAX_ID_LEN - 1);
-	s->table[s->pos].name[MAX_ID_LEN - 1] = '\0';
-	s->table[s->pos++].type = type;
-}
-
 static void sym_stack_push(struct symtable *s)
 {
 	s->stack[s->sp++] = s->pos;
@@ -87,6 +64,44 @@ static void sym_stack_push(struct symtable *s)
 static void sym_stack_pop(struct symtable *s)
 {
 	s->pos = s->stack[--s->sp];
+}
+
+static int sym_stack_peek(struct symtable *s)
+{
+	return s->stack[s->sp - 1];
+}
+
+static struct sym symtable_load_helper(struct symtable *s, char *name, bool within_scope)
+{
+	for (int i = s->pos - 1; i >= (within_scope ? sym_stack_peek(s) : 0); i--) {
+		if (!strcmp(s->table[i].name, name)) {
+			return s->table[i];
+		}
+	}
+	struct sym err;
+	err.type = DTYPE_ERR;
+	return err;
+}
+
+static struct sym symtable_load(struct symtable *s, char *name)
+{
+	return symtable_load_helper(s, name, false);
+}
+
+static void symtable_store(struct symtable *s, char *name, enum data_type type)
+{
+	if (s->pos == MAX_SYMS) {
+		fprintf(stderr, "too many symbols\n");
+		exit(1);
+	}
+	if (symtable_load_helper(s, name, true).type != DTYPE_ERR) {
+		fprintf(stderr, "duplicate symbol %s\n", name);
+		exit(1);
+	}
+	strncpy(s->table[s->pos].name, name, MAX_ID_LEN - 1);
+	s->table[s->pos].name[MAX_ID_LEN - 1] = '\0';
+	s->table[s->pos].type = type;
+	s->table[s->pos++].id = s->id_counter++;
 }
 
 static struct node *node_create(int children_num, enum node_type nt)
@@ -137,14 +152,16 @@ struct node *parse_primary(struct parser *p)
 		n->d_type = DTYPE_INT;
 	} else if (peek(p).type == TOKEN_ID) {
 		n = node_create(0, NODE_VAR_NAME);
-		strncpy(n->name, expect(p, TOKEN_ID).name, MAX_ID_LEN - 1);
-		n->name[MAX_ID_LEN - 1] = '\0';
-		enum data_type d = symtable_load(&p->symtable, n->name);
-		if (d == DTYPE_ERR) {
+		struct token var = expect(p, TOKEN_ID);
+		strncpy(n->name, var.name, MAX_ID_LEN - 1);
+		n->name[MAX_ID_LEN - 1] = '\0';;
+		struct sym var_sym = symtable_load(&p->symtable, n->name);
+		if (var_sym.type == DTYPE_ERR) {
 			fprintf(stderr, "unknown symbol %s\n", n->name);
 			exit(1);
 		}
-		n->d_type = d;
+		n->d_type = var_sym.type;
+		n->id = var_sym.id;
 	} else {
 		fprintf(stderr, "parsing error\n");
 		exit(1);
@@ -305,7 +322,7 @@ static struct node *parse_stmt(struct parser *p)
 			}
 			symtable_store(&p->symtable, var_name, dt);
 		} else {
-			if (symtable_load(&p->symtable, var_name) == DTYPE_ERR) {
+			if (symtable_load(&p->symtable, var_name).type == DTYPE_ERR) {
 				fprintf(stderr, "unknown symbol %s\n", var_name);
 				exit(1);
 			}
@@ -323,7 +340,9 @@ static struct node *parse_stmt(struct parser *p)
 		struct node *left = node_create(0, NODE_VAR_NAME);
 		parent->children[0] = left;
 		strcpy(left->name, var_name);
-		left->d_type = symtable_load(&p->symtable, left->name);
+		struct sym var_sym = symtable_load(&p->symtable, left->name);
+		left->d_type = var_sym.type;
+		left->id = var_sym.id;
 
 		parent->children[1] = parse_expr(p, 0);
 		expect(p, TOKEN_SEMI);
@@ -386,6 +405,7 @@ struct parser *parser_create_and_load(struct token *tokens)
 	struct parser *p = calloc(1, sizeof(*p));
 	p->tokens = malloc(MAX_TOKENS * sizeof(*p->tokens));
 	memcpy(p->tokens, tokens, MAX_TOKENS * sizeof(*p->tokens));
+	sym_stack_push(&p->symtable);
 	return p;
 }
 

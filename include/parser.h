@@ -30,6 +30,7 @@ struct node {
 	struct node **children;
 	enum node_type n_type;
 	enum data_type d_type;
+	int id;
 	union {
 		char op[3];
 		int  val;
