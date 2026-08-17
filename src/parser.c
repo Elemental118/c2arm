@@ -148,7 +148,7 @@ struct node *parse_unary(struct parser *p)
 		n = node_create(1, NODE_UN);
 		n->children_num = 1;
 		n->children[0] = parse_unary(p);
-		n->d_type = DTYPE_INT;
+		n->d_type = next.type == TOKEN_LNOT ? DTYPE_BOOL : DTYPE_INT;
 		switch (next.type) {
 		case TOKEN_MINUS:
 			strcpy(n->op, "-");
