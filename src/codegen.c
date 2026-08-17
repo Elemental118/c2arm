@@ -219,9 +219,9 @@ static void codegen_if(struct codegen *cg, struct instr *instr)
 		}
 		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s", "cmp", regtable_store(cg, op1_name), "#0");
 		if (!strcmp(instr->op, "t")) {
-			sprintf(cg->assembly[cg->pos++], "\t%-7s %s", "b.ne", instr->dest_name);
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s", "b.ne", instr->dest_name);
 		} else if (!strcmp(instr->op, "f")) {
-			sprintf(cg->assembly[cg->pos++], "\t%-7s %s", "b.eq", instr->dest_name);
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s", "b.eq", instr->dest_name);
 		} else {
 			fprintf(stderr, "assembly gen error\n");
 			exit(1);
