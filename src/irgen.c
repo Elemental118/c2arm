@@ -22,8 +22,7 @@ static struct operand irgen_expr(struct irgen *irg, struct node *n)
 		op.val = n->val;
 	} else if (n->n_type == NODE_VAR_NAME) {
 		op.kind = OPERAND_NAME;
-		strncpy(op.name, n->name, MAX_ID_LEN - 1);
-		op.name[MAX_ID_LEN - 1] = '\0';
+		snprintf(op.name, MAX_ID_LEN, "%s_%d", n->name, n->id);
 	} else if (n->n_type == NODE_UN) {
 		op.kind = OPERAND_NAME;
 		struct operand left = irgen_expr(irg, n->children[0]);
@@ -79,8 +78,7 @@ static void irgen_stmt(struct irgen *irg, struct node *n)
 	irg->instrs[irg->pos].op1 = right;
 	irg->instrs[irg->pos].i_type = INSTR_ASSIGN;
 	irg->instrs[irg->pos].d_type = n->children[0]->d_type;
-	strncpy(irg->instrs[irg->pos].dest_name, n->children[0]->name, MAX_ID_LEN - 1);
-	irg->instrs[irg->pos++].dest_name[MAX_ID_LEN - 1] = '\0';
+	snprintf(irg->instrs[irg->pos++].dest_name, MAX_ID_LEN, "%s_%d", n->children[0]->name, n->children[0]->id);
 }
 
 static void irgen_block(struct irgen *irg, struct node *n)
