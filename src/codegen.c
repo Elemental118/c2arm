@@ -190,7 +190,7 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 		regtable_store(cg, op1_name), regtable_store(cg, op2_name));
 }
 
-static void codegen_if(struct codegen *cg, struct instr *instr)
+static void codegen_jmp(struct codegen *cg, struct instr *instr)
 {
 	char op1_name[32];
 	if (instr->op1.kind == OPERAND_LITERAL) {
@@ -251,7 +251,7 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			codegen_compute(cg, instr);
 			break;
 		case INSTR_JMP:
-			codegen_if(cg, instr);
+			codegen_jmp(cg, instr);
 			break;
 		case INSTR_LABEL:
 		case INSTR_FUNC_START:
