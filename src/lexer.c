@@ -39,6 +39,7 @@ static const char *token_names[] = {
 	[TOKEN_NE] = "NE",
 	[TOKEN_BNOT] = "BNOT",
 	[TOKEN_LNOT] = "LNOT",
+	[TOKEN_IF] = "IF",
 	[TOKEN_ASSIGN] = "ASSIGN",
 	[TOKEN_INT_LIT] = "INT_LIT",
 	[TOKEN_EOF] = "EOF"
@@ -219,6 +220,8 @@ struct token next_token(struct lexer *l)
 			t.type = TOKEN_BOOL;
 		} else if (!strcmp(t.name, "void")) {
 			t.type = TOKEN_VOID;
+		} else if (!strcmp(t.name, "if")) {
+			t.type = TOKEN_IF;
 		} else {
 			t.type = TOKEN_ID;
 		}
