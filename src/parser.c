@@ -267,73 +267,91 @@ struct node *parse_expr(struct parser *p, int prec_min)
 	return left;
 }
 
+static struct node *parse_block(struct parser *p);
+
 static struct node *parse_stmt(struct parser *p)
 {
-	// Shared
-	bool declare = false;
-	enum token_type tt = peek(p).type;
-	if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
-		declare = true;
-		advance(p);
-	}
-	char var_name[32];
-	strcpy(var_name, expect(p, TOKEN_ID).name);
-	if (declare) {
-		enum data_type dt;
-		if (tt == TOKEN_INT) {
-			dt = DTYPE_INT;
-		} else {
-			dt = DTYPE_BOOL;
-		}
-		symtable_store(&p->symtable, var_name, dt);
+	if (peek(p).type == TOKEN_LBRACE) {
+		return parse_block(p);
 	} else {
-		if (symtable_load(&p->symtable, var_name) == DTYPE_ERR) {
-			fprintf(stderr, "unknown symbol %s\n", var_name);
-			exit(1);
+		// Shared
+		bool declare = false;
+		enum token_type tt = peek(p).type;
+		if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
+			declare = true;
+			advance(p);
 		}
-	}
-	struct token t = peek(p);
-	if (t.type == TOKEN_SEMI) {
-		advance(p);
-		return NULL;
-	}
+		char var_name[32];
+		strcpy(var_name, expect(p, TOKEN_ID).name);
+		if (declare) {
+			enum data_type dt;
+			if (tt == TOKEN_INT) {
+				dt = DTYPE_INT;
+			} else {
+				dt = DTYPE_BOOL;
+			}
+			symtable_store(&p->symtable, var_name, dt);
+		} else {
+			if (symtable_load(&p->symtable, var_name) == DTYPE_ERR) {
+				fprintf(stderr, "unknown symbol %s\n", var_name);
+				exit(1);
+			}
+		}
+		struct token t = peek(p);
+		if (t.type == TOKEN_SEMI) {
+			advance(p);
+			return NULL;
+		}
 
-	// If assignment
-	struct node *parent = node_create(2, NODE_ASSIGN);
-	parent->children_num = 2;
-	expect(p, TOKEN_ASSIGN);
-	struct node *left = node_create(0, NODE_VAR_NAME);
-	parent->children[0] = left;
-	strcpy(left->name, var_name);
-	left->d_type = symtable_load(&p->symtable, left->name);
+		// If assignment
+		struct node *parent = node_create(2, NODE_ASSIGN);
+		parent->children_num = 2;
+		expect(p, TOKEN_ASSIGN);
+		struct node *left = node_create(0, NODE_VAR_NAME);
+		parent->children[0] = left;
+		strcpy(left->name, var_name);
+		left->d_type = symtable_load(&p->symtable, left->name);
 
-	parent->children[1] = parse_expr(p, 0);
-	expect(p, TOKEN_SEMI);
-	return parent;
+		parent->children[1] = parse_expr(p, 0);
+		expect(p, TOKEN_SEMI);
+		return parent;
+	}
 }
 
-static struct node *parse_func_decl(struct parser *p)
+static struct node *parse_block(struct parser *p)
 {
-	expect(p, TOKEN_VOID);
-	struct node *parent = node_create(MAX_STMTS, NODE_FUNC);
-	parent->d_type = DTYPE_VOID;
-	strcpy(parent->name, expect(p, TOKEN_ID).name);
-	expect(p, TOKEN_LPAREN);
-	expect(p, TOKEN_VOID);
-	expect(p, TOKEN_RPAREN);
+	struct node *block = node_create(MAX_STMTS, NODE_BLOCK);
 	expect(p, TOKEN_LBRACE);
-
 	for (int i = 0; peek(p).type != TOKEN_RBRACE; i++) {
 		struct node *n = parse_stmt(p);
 		if (!n) {
 			i--;
 		} else {
-			parent->children[i] = n;
-			parent->children_num++;
+			block->children[i] = n;
+			block->children_num++;
 		}
 	}
 	advance(p);
-	return parent;
+	return block;
+}
+
+static struct node *parse_func_decl(struct parser *p)
+{
+	expect(p, TOKEN_VOID);
+	struct node *func = node_create(MAX_STMTS, NODE_FUNC);
+	func->d_type = DTYPE_VOID;
+	strcpy(func->name, expect(p, TOKEN_ID).name);
+	expect(p, TOKEN_LPAREN);
+	expect(p, TOKEN_VOID);
+	expect(p, TOKEN_RPAREN);
+	if (peek(p).type != TOKEN_LBRACE) {
+		fprintf(stderr, "function %s must be followed by a block enclosed by {}\n", func->name);
+		exit(1);
+	}
+
+	func->children_num = 1;
+	func->children[0] = parse_block(p);
+	return func;
 }
 
 struct node *parse_program(struct parser *p)
