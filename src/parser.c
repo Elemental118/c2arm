@@ -117,6 +117,8 @@ static struct node *node_create(int children_num, enum node_type nt)
 int get_precedence(enum token_type tt)
 {
 	switch (tt) {
+	case TOKEN_ASSIGN:
+		return 1;
 	case TOKEN_PIPE:
 		return 5;
 	case TOKEN_XOR:
@@ -154,7 +156,7 @@ struct node *parse_primary(struct parser *p)
 		n = node_create(0, NODE_VAR_NAME);
 		struct token var = expect(p, TOKEN_ID);
 		strncpy(n->name, var.name, MAX_ID_LEN - 1);
-		n->name[MAX_ID_LEN - 1] = '\0';;
+		n->name[MAX_ID_LEN - 1] = '\0';
 		struct sym var_sym = symtable_load(&p->symtable, n->name);
 		if (var_sym.type == DTYPE_ERR) {
 			fprintf(stderr, "unknown symbol %s\n", n->name);
@@ -212,7 +214,7 @@ struct node *parse_expr(struct parser *p, int prec_min)
 			break;
 		}
 		advance(p);
-		struct node *right = parse_expr(p, prec_next + 1);
+		struct node *right = parse_expr(p, prec_next + (next.type != TOKEN_ASSIGN));
 		struct node *parent = node_create(2, NODE_BIN);
 		parent->children_num = 2;
 		parent->children[0] = left;
@@ -289,6 +291,11 @@ struct node *parse_expr(struct parser *p, int prec_min)
 			left->d_type = DTYPE_BOOL;
 			break;
 		
+		case TOKEN_ASSIGN:
+			strcpy(left->op, "=");
+			left->d_type = right->d_type;
+			break;
+		
 		default:
 			strcpy(left->op, "?");
 			break;
@@ -326,49 +333,48 @@ static struct node *parse_stmt(struct parser *p)
 	} else if (peek(p).type == TOKEN_IF) {
 		return parse_if(p);
 	} else {
-		// Shared
-		bool declare = false;
 		enum token_type tt = peek(p).type;
 		if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
-			declare = true;
-			advance(p);
+			advance(p);                                                                         
+		} else {
+			struct node *n = parse_expr(p, 0);
+			expect(p, TOKEN_SEMI);
+			return n;
 		}
 		char var_name[32];
-		strcpy(var_name, expect(p, TOKEN_ID).name);
-		if (declare) {
-			enum data_type dt;
-			if (tt == TOKEN_INT) {
-				dt = DTYPE_INT;
-			} else {
-				dt = DTYPE_BOOL;
-			}
-			symtable_store(&p->symtable, var_name, dt);
+		if (peek(p).type != TOKEN_ID) {
+			fprintf(stderr, "parsing error\n");
+			exit(1);
+		}
+		strncpy(var_name, peek(p).name, MAX_ID_LEN - 1);
+		var_name[MAX_ID_LEN - 1] = '\0';
+		expect(p, TOKEN_ID);
+		enum data_type dt;
+		if (tt == TOKEN_INT) {
+			dt = DTYPE_INT;
 		} else {
-			if (symtable_load(&p->symtable, var_name).type == DTYPE_ERR) {
-				fprintf(stderr, "unknown symbol %s\n", var_name);
-				exit(1);
-			}
+			dt = DTYPE_BOOL;
 		}
-		struct token t = peek(p);
+		symtable_store(&p->symtable, var_name, dt);
+		struct token t = advance(p);
 		if (t.type == TOKEN_SEMI) {
-			advance(p);
 			return NULL;
+		} else if (t.type == TOKEN_ASSIGN) {
+			struct node *parent = node_create(2, NODE_BIN);
+			parent->children_num = 2;
+			parent->d_type = dt;
+			strcpy(parent->op, "=");
+			parent->children[0] = node_create(0, NODE_VAR_NAME);
+			strcpy(parent->children[0]->name, var_name);
+			parent->children[0]->id = symtable_load(&p->symtable, var_name).id;
+			parent->children[0]->d_type = dt;
+			parent->children[1] = parse_expr(p, 0);
+			expect(p, TOKEN_SEMI);
+			return parent;
+		} else {
+			fprintf(stderr, "parsing error\n");
+			exit(1);
 		}
-
-		// If assignment
-		struct node *parent = node_create(2, NODE_ASSIGN);
-		parent->children_num = 2;
-		expect(p, TOKEN_ASSIGN);
-		struct node *left = node_create(0, NODE_VAR_NAME);
-		parent->children[0] = left;
-		strcpy(left->name, var_name);
-		struct sym var_sym = symtable_load(&p->symtable, left->name);
-		left->d_type = var_sym.type;
-		left->id = var_sym.id;
-
-		parent->children[1] = parse_expr(p, 0);
-		expect(p, TOKEN_SEMI);
-		return parent;
 	}
 }
 
@@ -455,9 +461,6 @@ static void ast_print_helper(struct node *n, int depth)
 		break;
 	case NODE_IF:
 		printf("IF\n");
-		break;
-	case NODE_ASSIGN:
-		printf("ASSIGN\n");
 		break;
 	case NODE_VAR_NAME:
 		printf("%s VAR %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
