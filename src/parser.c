@@ -297,12 +297,28 @@ struct node *parse_expr(struct parser *p, int prec_min)
 	return left;
 }
 
+static struct node *parse_stmt(struct parser *p);
+
+static struct node *parse_if(struct parser *p)
+{
+	struct node *parent = node_create(2, NODE_IF);
+	parent->children_num = 2;
+	expect(p, TOKEN_IF);
+	expect(p, TOKEN_LPAREN);
+	parent->children[0] = parse_expr(p, 0);
+	expect(p, TOKEN_RPAREN);
+	parent->children[1] = parse_stmt(p);
+	return parent;
+}
+
 static struct node *parse_block(struct parser *p);
 
 static struct node *parse_stmt(struct parser *p)
 {
 	if (peek(p).type == TOKEN_LBRACE) {
 		return parse_block(p);
+	} else if (peek(p).type == TOKEN_IF) {
+		return parse_if(p);
 	} else {
 		// Shared
 		bool declare = false;

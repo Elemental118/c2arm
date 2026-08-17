@@ -13,6 +13,7 @@ enum node_type {
 	NODE_FUNC,
 	NODE_BLOCK,
 	NODE_INT_LIT,
+	NODE_IF,
 	NODE_VAR_NAME
 };
 
