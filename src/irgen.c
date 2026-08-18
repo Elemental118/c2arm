@@ -7,12 +7,36 @@
 #include "parser.h"
 #include "types.h"
 
+#define MAX_LOOPS_NESTED 10
+
+struct loop_labels {
+	int brk;
+	int cont;
+};
+
 struct irgen {
 	struct instr *instrs;
 	int pos;
 	int tmp_count;
 	int label_count;
+	struct loop_labels label_stack[MAX_LOOPS_NESTED];
+	int label_stack_pos;
 };
+
+static void label_stack_push(struct irgen *irg, struct loop_labels labels)
+{
+	irg->label_stack[irg->label_stack_pos++] = labels;
+}
+
+static struct loop_labels label_stack_pop(struct irgen *irg)
+{
+	return irg->label_stack[--irg->label_stack_pos];
+}
+
+static struct loop_labels label_stack_peek(struct irgen *irg)
+{
+	return irg->label_stack[irg->label_stack_pos - 1];
+}
 
 static struct operand irgen_expr(struct irgen *irg, struct node *n)
 {
@@ -120,12 +144,20 @@ static void irgen_if(struct irgen *irg, struct node *n)
 
 static void irgen_while(struct irgen *irg, struct node *n)
 {
+	if (irg->pos == MAX_LOOPS_NESTED) {
+		fprintf(stderr, "too many nested loops\n");
+		exit(1);
+	}
+	int start = irg->label_count++;
+	int end = irg->label_count++;
+	struct loop_labels labels = {end, start};
+	label_stack_push(irg, labels);
+
 	if (irg->pos == MAX_INSTRS) {
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
 	}
 	irg->instrs[irg->pos].i_type = INSTR_LABEL;
-	int start = irg->label_count++;
 	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", start);
 
 	struct operand cond = irgen_expr(irg, n->children[0]);
@@ -133,7 +165,6 @@ static void irgen_while(struct irgen *irg, struct node *n)
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
 	}
-	int end = irg->label_count++;
 	irg->instrs[irg->pos].op1 = cond;
 	irg->instrs[irg->pos].i_type = INSTR_JMP;
 	strcpy(irg->instrs[irg->pos].op, "f");
@@ -155,10 +186,21 @@ static void irgen_while(struct irgen *irg, struct node *n)
 	}
 	irg->instrs[irg->pos].i_type = INSTR_LABEL;
 	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
+	
+	label_stack_pop(irg);
 }
 
 static void irgen_do(struct irgen *irg, struct node *n)
 {
+	if (irg->pos == MAX_LOOPS_NESTED) {
+		fprintf(stderr, "too many nested loops\n");
+		exit(1);
+	}
+	int brk = irg->label_count++;
+	int cont = irg->label_count++;
+	struct loop_labels labels = {brk, cont};
+	label_stack_push(irg, labels);
+
 	if (irg->pos == MAX_INSTRS) {
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
@@ -169,7 +211,15 @@ static void irgen_do(struct irgen *irg, struct node *n)
 
 	irgen_stmt(irg, n->children[0]);
 
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	irg->instrs[irg->pos].i_type = INSTR_LABEL;
+	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", cont);
+
 	struct operand cond = irgen_expr(irg, n->children[1]);
+
 	if (irg->pos == MAX_INSTRS) {
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
@@ -178,10 +228,28 @@ static void irgen_do(struct irgen *irg, struct node *n)
 	irg->instrs[irg->pos].i_type = INSTR_JMP;
 	strcpy(irg->instrs[irg->pos].op, "t");
 	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", start);
+
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	irg->instrs[irg->pos].i_type = INSTR_LABEL;
+	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", brk);
+	
+	label_stack_pop(irg);
 }
 
 static void irgen_for(struct irgen *irg, struct node *n)
 {
+	if (irg->pos == MAX_LOOPS_NESTED) {
+		fprintf(stderr, "too many nested loops\n");
+		exit(1);
+	}
+	int end = irg->label_count++;
+	int cont = irg->label_count++;
+	struct loop_labels labels = {end, cont};
+	label_stack_push(irg, labels);
+
 	irgen_expr(irg, n->children[0]);
 
 	if (irg->pos == MAX_INSTRS) {
@@ -197,13 +265,19 @@ static void irgen_for(struct irgen *irg, struct node *n)
 		fprintf(stderr, "too many IR instructions\n");
 		exit(1);
 	}
-	int end = irg->label_count++;
 	irg->instrs[irg->pos].op1 = cond;
 	irg->instrs[irg->pos].i_type = INSTR_JMP;
 	strcpy(irg->instrs[irg->pos].op, "f");
 	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
 
 	irgen_stmt(irg, n->children[3]);
+
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	irg->instrs[irg->pos].i_type = INSTR_LABEL;
+	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", cont);
 
 	irgen_expr(irg, n->children[2]);
 
@@ -221,6 +295,24 @@ static void irgen_for(struct irgen *irg, struct node *n)
 	}
 	irg->instrs[irg->pos].i_type = INSTR_LABEL;
 	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
+
+	label_stack_pop(irg);
+}
+
+static void irgen_loop_cntl(struct irgen *irg, struct node *n)
+{
+	struct loop_labels labels = label_stack_peek(irg);
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	if (labels.brk == -1 && labels.cont == -1) {
+		fprintf(stderr, "%s not in loop\n",  n->n_type == NODE_CONT ? "continue" : "break");
+		exit(1);
+	}
+	irg->instrs[irg->pos].i_type = INSTR_JMP;
+	strcpy(irg->instrs[irg->pos].op, "j");
+	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", n->n_type == NODE_CONT ? labels.cont : labels.brk);
 }
 
 static void irgen_block(struct irgen *irg, struct node *n);
@@ -242,7 +334,13 @@ static void irgen_stmt(struct irgen *irg, struct node *n)
 	} else if (n->n_type == NODE_FOR) {
 		irgen_for(irg, n);
 		return;
-	} else {
+	} else if (n->n_type == NODE_BRK) {
+		irgen_loop_cntl(irg, n);
+		return;
+	}else if (n->n_type == NODE_CONT) {
+		irgen_loop_cntl(irg, n);
+		return;
+	}else {
 		irgen_expr(irg, n);
 	}
 	
@@ -298,6 +396,8 @@ struct irgen *irgen_create_and_load(void)
 {
 	struct irgen *irg = calloc(1, sizeof(*irg));
 	irg->instrs = malloc(MAX_INSTRS * sizeof(*irg->instrs));
+	struct loop_labels init = {-1, -1};
+	label_stack_push(irg, init);
 	return irg;
 }
 
