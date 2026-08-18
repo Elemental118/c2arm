@@ -9,6 +9,7 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 * `=` as a first-class operator with return value
 * Blocks (`{}`) with proper variable scoping/shadowing
 * `if`/`else` statements with and without blocks
+* `while`, `do`/`while`, and `for` loops with and without blocks
 * `void`/`void` functions
 * Single `.c` file, no libraries or headers
 
