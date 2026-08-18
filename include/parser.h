@@ -16,6 +16,8 @@ enum node_type {
 	NODE_WHILE,
 	NODE_DO,
 	NODE_FOR,
+	NODE_BRK,
+	NODE_CONT,
 	NODE_VAR_NAME
 };
 

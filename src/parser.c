@@ -381,6 +381,16 @@ static struct node *parse_stmt(struct parser *p)
 		return parse_do(p);
 	} else if (peek(p).type == TOKEN_FOR) {
 		return parse_for(p);
+	} else if (peek(p).type == TOKEN_BRK) {
+		struct node *parent = node_create(0, NODE_BRK);
+		advance(p);
+		expect(p, TOKEN_SEMI);
+		return parent;
+	} else if (peek(p).type == TOKEN_CONT) {
+		struct node *parent = node_create(0, NODE_CONT);
+		advance(p);
+		expect(p, TOKEN_SEMI);
+		return parent;
 	} else {
 		enum token_type tt = peek(p).type;
 		if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
