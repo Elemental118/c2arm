@@ -530,6 +530,12 @@ static void ast_print_helper(struct node *n, int depth)
 	case NODE_FOR:
 		printf("FOR\n");
 		break;
+	case NODE_BRK:
+		printf("BRK\n");
+		break;
+	case NODE_CONT:
+		printf("CONT\n");
+		break;
 	case NODE_VAR_NAME:
 		printf("%s VAR %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
 		break;
