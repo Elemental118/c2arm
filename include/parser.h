@@ -13,6 +13,9 @@ enum node_type {
 	NODE_BLOCK,
 	NODE_INT_LIT,
 	NODE_IF,
+	NODE_WHILE,
+	NODE_DO,
+	NODE_FOR,
 	NODE_VAR_NAME
 };
 

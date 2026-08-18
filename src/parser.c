@@ -324,6 +324,49 @@ static struct node *parse_if(struct parser *p)
 	return parent;
 }
 
+static struct node *parse_while(struct parser *p)
+{
+	struct node *parent = node_create(2, NODE_WHILE);
+	parent->children_num = 2;
+	expect(p, TOKEN_WHILE);
+	expect(p, TOKEN_LPAREN);
+	parent->children[0] = parse_expr(p, 0);
+	expect(p, TOKEN_RPAREN);
+	parent->children[1] = parse_stmt(p);
+	return parent;
+}
+
+static struct node *parse_do(struct parser *p)
+{
+	struct node *parent = node_create(2, NODE_DO);
+	parent->children_num = 2;
+	expect(p, TOKEN_DO);
+	parent->children[0] = parse_stmt(p);
+	expect(p, TOKEN_WHILE);
+	expect(p, TOKEN_LPAREN);
+	parent->children[1] = parse_expr(p, 0);
+	expect(p, TOKEN_RPAREN);
+	expect(p, TOKEN_SEMI);
+	return parent;
+}
+
+static struct node *parse_for(struct parser *p)
+{
+	struct node *parent = node_create(4, NODE_FOR);
+	parent->children_num = 4;
+	expect(p, TOKEN_FOR);
+	expect(p, TOKEN_LPAREN);
+	sym_stack_push(&p->symtable);
+	parent->children[0] = parse_stmt(p);
+	parent->children[1] = parse_expr(p, 0);
+	expect(p, TOKEN_SEMI);
+	parent->children[2] = parse_expr(p, 0);
+	expect(p, TOKEN_RPAREN);
+	parent->children[3] = parse_stmt(p);
+	sym_stack_pop(&p->symtable);
+	return parent;
+}
+
 static struct node *parse_block(struct parser *p);
 
 static struct node *parse_stmt(struct parser *p)
@@ -332,6 +375,12 @@ static struct node *parse_stmt(struct parser *p)
 		return parse_block(p);
 	} else if (peek(p).type == TOKEN_IF) {
 		return parse_if(p);
+	} else if (peek(p).type == TOKEN_WHILE) {
+		return parse_while(p);
+	} else if (peek(p).type == TOKEN_DO) {
+		return parse_do(p);
+	} else if (peek(p).type == TOKEN_FOR) {
+		return parse_for(p);
 	} else {
 		enum token_type tt = peek(p).type;
 		if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
