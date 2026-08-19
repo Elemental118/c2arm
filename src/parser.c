@@ -145,7 +145,7 @@ int get_precedence(enum token_type tt)
 	}
 }
 
-struct node *parse_primary(struct parser *p)
+struct node *parse_fundamental(struct parser *p)
 {
 	struct node *n;
 	if (peek(p).type == TOKEN_INT_LIT) {
@@ -200,7 +200,7 @@ struct node *parse_unary(struct parser *p)
 		}
 		return n;
 	} else {
-		return parse_primary(p);
+		return parse_fundamental(p);
 	}
 }
 
