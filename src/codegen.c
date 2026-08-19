@@ -238,6 +238,35 @@ static void codegen_label(struct codegen *cg, struct instr *instr)
 	sprintf(cg->assembly[cg->pos++], "%s:", instr->dest_name);
 }
 
+static void codegen_ret(struct codegen *cg, struct instr *instr)
+{
+	if (!strcmp(instr->op, "r")) {
+		char op1_name[32];
+		if (instr->op1.kind == OPERAND_LITERAL) {
+			if (cg->pos == MAX_ASM_INSTRS) {
+				fprintf(stderr, "too many assembly instructions\n");
+				exit(1);
+			}
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d",
+				"mov", regtable_store(cg, "u0"), instr->op1.val);
+			strcpy(op1_name, "u0");
+		} else {
+			strncpy(op1_name, instr->op1.name, MAX_ID_LEN - 1);
+			op1_name[MAX_ID_LEN - 1] = '\0';
+		}
+		if (cg->pos == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, %s", "mov", "w0", regtable_store(cg, op1_name));
+	}
+	if (cg->pos == MAX_ASM_INSTRS ) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	strcpy(cg->assembly[cg->pos++], "\tret");
+}
+
 void codegen_prog(struct codegen *cg, struct instr *ir)
 {
 	for (int i = 0; ; i++) {
@@ -258,6 +287,9 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			codegen_label(cg, instr);
 			break;
 		case INSTR_FUNC_END:
+			break;
+		case INSTR_RET:
+			codegen_ret(cg, instr);
 			break;
 		case INSTR_EOF:
 			return;
