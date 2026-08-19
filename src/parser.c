@@ -336,6 +336,18 @@ static struct node *parse_while(struct parser *p)
 	return parent;
 }
 
+static struct node *parse_switch(struct parser *p)
+{
+	struct node *parent = node_create(2, NODE_SWITCH);
+	parent->children_num = 2;
+	expect(p, TOKEN_SWITCH);
+	expect(p, TOKEN_LPAREN);
+	parent->children[0] = parse_expr(p, 0);
+	expect(p, TOKEN_RPAREN);
+	parent->children[1] = parse_stmt(p);
+	return parent;
+}
+
 static struct node *parse_do(struct parser *p)
 {
 	struct node *parent = node_create(2, NODE_DO);
@@ -470,13 +482,14 @@ static struct node *parse_expr_stmt(struct parser *p)
 /*
  * Per N3220:
  * A selection statement is an if, an if/else, or a switch statement.
- * SWITCH NOT YET SUPPORTED
 */
 static struct node *parse_sel_stmt(struct parser *p)
 {
 	switch (peek(p).type) {
 	case TOKEN_IF:
 		return parse_if(p);
+	case TOKEN_SWITCH:
+		return parse_switch(p);
 	default:
 		fprintf(stderr, "parsing error");
 		exit(1);
@@ -512,6 +525,7 @@ static struct node *parse_prim_block(struct parser *p)
 {
 	switch (peek(p).type) {
 	case TOKEN_IF:
+	case TOKEN_SWITCH:
 		return parse_sel_stmt(p);
 	case TOKEN_WHILE:
 	case TOKEN_DO:
@@ -553,6 +567,7 @@ static struct node *parse_unlabeled_stmt(struct parser *p)
 {
 	switch (peek(p).type) {
 	case TOKEN_IF:
+	case TOKEN_SWITCH:
 	case TOKEN_WHILE:
 	case TOKEN_DO:
 	case TOKEN_FOR:
@@ -577,10 +592,33 @@ static struct node *parse_stmt(struct parser *p)
 	return parse_unlabeled_stmt(p);
 }
 
+static struct node *parse_label(struct parser *p)
+{
+	struct node *n;
+	switch (peek(p).type) {
+	case TOKEN_CASE:
+		n = node_create(1, NODE_CASE);
+		n->children_num = 1;
+		advance(p);
+		n->children[0] = parse_expr(p, 0);
+		expect(p, TOKEN_COL);
+		return n;
+	
+	case TOKEN_DEFAULT:
+		n = node_create(0, NODE_DEFAULT);
+		advance(p);
+		expect(p, TOKEN_COL);
+		return n;
+	
+	default:
+		fprintf(stderr, "invalid label\n");
+		exit(1);
+	}
+}
+
 /*
  * Per N3220:
  * A block item is a declaration, an unlabeled statement, or a label.
- * LABELS NOT YET SUPPORTED
 */
 static struct node *parse_block_item(struct parser *p)
 {
@@ -588,6 +626,9 @@ static struct node *parse_block_item(struct parser *p)
 	case TOKEN_INT:
 	case TOKEN_BOOL:
 		return parse_decl(p);
+	case TOKEN_CASE:
+	case TOKEN_DEFAULT:
+		return parse_label(p);
 	default:
 		return parse_unlabeled_stmt(p);
 	}
@@ -687,6 +728,15 @@ static void ast_print_helper(struct node *n, int depth)
 		break;
 	case NODE_IF:
 		printf("IF\n");
+		break;
+	case NODE_SWITCH:
+		printf("SWITCH\n");
+		break;
+	case NODE_CASE:
+		printf("CASE\n");
+		break;
+	case NODE_DEFAULT:
+		printf("DEFAULT\n");
 		break;
 	case NODE_WHILE:
 		printf("WHILE\n");

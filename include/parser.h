@@ -19,6 +19,9 @@ enum node_type {
 	NODE_BRK,
 	NODE_CONT,
 	NODE_RET,
+	NODE_SWITCH,
+	NODE_CASE,
+	NODE_DEFAULT,
 	NODE_VAR_NAME
 };
 
