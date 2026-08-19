@@ -8,6 +8,7 @@
 #include "types.h"
 
 #define MAX_LOOPS_NESTED 10
+#define MAX_CASES_PER_SWITCH 10
 
 struct loop_labels {
 	int brk;
@@ -21,6 +22,11 @@ struct irgen {
 	int label_count;
 	struct loop_labels label_stack[MAX_LOOPS_NESTED];
 	int label_stack_pos;
+};
+
+struct s_case {
+	struct node *expr;
+	char label[MAX_LABEL_LEN];
 };
 
 static void label_stack_push(struct irgen *irg, struct loop_labels labels)
@@ -140,6 +146,95 @@ static void irgen_if(struct irgen *irg, struct node *n)
 		irg->instrs[irg->pos].i_type = INSTR_LABEL;
 		snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
 	}
+}
+
+static void switch_recurse(struct irgen *irg, struct node *n, struct s_case *cases, int *case_pos, struct s_case *def)
+{
+	if (n->n_type == NODE_CASE) {
+		if (*case_pos == MAX_CASES_PER_SWITCH) {
+			fprintf(stderr, "too many cases in switch\n");
+			exit(1);
+		}
+		snprintf(n->name, MAX_LABEL_LEN, "L%d", irg->label_count++);
+		strcpy(cases[*case_pos].label, n->name);
+		cases[(*case_pos)++].expr = n->children[0];
+	} else if (n->n_type == NODE_DEFAULT) {
+		snprintf(n->name, MAX_LABEL_LEN, "L%d", irg->label_count++);
+		strcpy(def->label, n->name);
+		def->expr = n;
+	}
+	for (int i = 0; i < n->children_num; i++) {
+		if (n->children[i]->n_type != NODE_SWITCH) {
+			switch_recurse(irg, n->children[i], cases, case_pos, def);
+		}
+	}
+}
+
+static void irgen_switch(struct irgen *irg, struct node *n)
+{
+	if (irg->pos == MAX_LOOPS_NESTED) {
+		fprintf(stderr, "too many nested loops\n");
+		exit(1);
+	}
+	int end = irg->label_count++;
+	struct loop_labels labels = {end, label_stack_peek(irg).cont};
+	label_stack_push(irg, labels);
+	struct s_case cases[MAX_CASES_PER_SWITCH];
+	struct s_case def = {.expr = NULL};
+	int pos = 0;
+	switch_recurse(irg, n, cases, &pos, &def);
+
+	struct operand switcher = irgen_expr(irg, n->children[0]);
+
+	for (int i = 0; i < pos; i++) {
+		struct operand val = irgen_expr(irg, cases[i].expr);
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many nested loops\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].i_type = INSTR_BIN;
+		irg->instrs[irg->pos].d_type = DTYPE_BOOL;
+		irg->instrs[irg->pos].op1 = switcher;
+		irg->instrs[irg->pos].op2 = val;
+		int temp = irg->tmp_count++;
+		snprintf(irg->instrs[irg->pos].dest_name, MAX_ID_LEN, "t%d", temp);
+		strcpy(irg->instrs[irg->pos++].op, "==");
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many nested loops\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].i_type = INSTR_JMP;
+		strcpy(irg->instrs[irg->pos].op, "t");
+		snprintf(irg->instrs[irg->pos].op1.name, MAX_ID_LEN, "t%d", temp);
+		strncpy(irg->instrs[irg->pos].dest_name, cases[i].label, MAX_LABEL_LEN - 1);
+		irg->instrs[irg->pos].op1.kind = OPERAND_NAME;
+		irg->instrs[irg->pos++].dest_name[MAX_LABEL_LEN - 1] = '\0';
+	}
+
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	irg->instrs[irg->pos].i_type = INSTR_JMP;
+	strcpy(irg->instrs[irg->pos].op, "j");
+	if (def.expr) {
+		strncpy(irg->instrs[irg->pos].dest_name, def.label, MAX_LABEL_LEN - 1);
+		irg->instrs[irg->pos++].dest_name[MAX_LABEL_LEN - 1] = '\0';
+	} else {
+		snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
+	}
+
+	irgen_stmt(irg, n->children[1]);
+
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	irg->instrs[irg->pos].i_type = INSTR_LABEL;
+	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
+
+	label_stack_pop(irg);
 }
 
 static void irgen_while(struct irgen *irg, struct node *n)
@@ -343,6 +438,21 @@ static void irgen_stmt(struct irgen *irg, struct node *n)
 		return;
 	} else if (n->n_type == NODE_IF) {
 		irgen_if(irg, n);
+		return;
+	} else if (n->n_type == NODE_SWITCH) {
+		irgen_switch(irg, n);
+		return;
+	} else if (n->n_type == NODE_CASE || n->n_type == NODE_DEFAULT) {
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].i_type = INSTR_LABEL;
+		strncpy(irg->instrs[irg->pos].dest_name, n->name, MAX_LABEL_LEN - 1);
+		irg->instrs[irg->pos++].dest_name[MAX_LABEL_LEN - 1] = '\0';
+		if (n->children_num > (n->n_type == NODE_CASE)) {
+			irgen_stmt(irg, n->children[n->n_type == NODE_CASE]);
+		}
 		return;
 	} else if (n->n_type == NODE_WHILE) {
 		irgen_while(irg, n);
