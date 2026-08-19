@@ -438,6 +438,11 @@ static struct node *parse_stmt(struct parser *p)
 	}
 }
 
+static struct node *parse_unlabeled_stmt(struct parser *p)
+{
+	return parse_stmt(p);
+}
+
 /*
  * Per N3220:
  * A block item is either a declaration, unlabeled statement, or label.
@@ -450,7 +455,7 @@ static struct node *parse_block_item(struct parser *p)
 	case TOKEN_BOOL:
 		return parse_decl(p);
 	default:
-		return parse_stmt(p);
+		return parse_unlabeled_stmt(p);
 	}
 }
 
