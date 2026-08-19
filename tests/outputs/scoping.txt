@@ -1,5 +1,0 @@
-main:
-	mov    w9, #7
-	mov    w10, #3
-	mov    w11, w10
-	mov    w12, w9

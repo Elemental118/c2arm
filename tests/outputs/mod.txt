@@ -1,8 +1,0 @@
-main:
-	mov    w9, #47
-	mov    w10, #12
-	sdiv   w11, w9, w10
-	msub   w12, w11, w10, w9
-	mov    w13, #3
-	add    w14, w12, w13
-	mov    w15, w14

@@ -1,3 +1,0 @@
-main:
-	mov    w9, #87
-	mov    w9, #51

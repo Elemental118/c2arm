@@ -1,6 +1,0 @@
-main:
-	mov    w9, #7
-	mov    w10, #5
-	cmp    w9, w10
-	cset   w11, lt
-	mov    w12, w11

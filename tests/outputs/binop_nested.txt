@@ -1,7 +1,0 @@
-main:
-	mov    w9, #12
-	mov    w10, #78
-	mov    w11, #8
-	mul    w12, w10, w11
-	add    w13, w9, w12
-	mov    w14, w13
