@@ -369,6 +369,46 @@ static struct node *parse_for(struct parser *p)
 
 static struct node *parse_block(struct parser *p);
 
+static struct node *parse_decl(struct parser *p)
+{
+	enum token_type tt = peek(p).type;
+	if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
+		advance(p);                                                                         
+	} else {
+		fprintf(stderr, "unrecognized declaration type of %s\n", peek(p).name);
+		exit(1);
+	}
+	char var_name[32];
+	strncpy(var_name, expect(p, TOKEN_ID).name, MAX_ID_LEN - 1);
+	var_name[MAX_ID_LEN - 1] = '\0';
+	enum data_type dt;
+	if (tt == TOKEN_INT) {
+		dt = DTYPE_INT;
+	} else {
+		dt = DTYPE_BOOL;
+	}
+	symtable_store(&p->symtable, var_name, dt);
+	struct token t = advance(p);
+	if (t.type == TOKEN_SEMI) {
+		return NULL;
+	} else if (t.type == TOKEN_ASSIGN) {
+		struct node *parent = node_create(2, NODE_BIN);
+		parent->children_num = 2;
+		parent->d_type = dt;
+		strcpy(parent->op, "=");
+		parent->children[0] = node_create(0, NODE_VAR_NAME);
+		strcpy(parent->children[0]->name, var_name);
+		parent->children[0]->id = symtable_load(&p->symtable, var_name).id;
+		parent->children[0]->d_type = dt;
+		parent->children[1] = parse_expr(p, 0);
+		expect(p, TOKEN_SEMI);
+		return parent;
+	} else {
+		fprintf(stderr, "parsing error\n");
+		exit(1);
+	}
+}
+
 static struct node *parse_stmt(struct parser *p)
 {
 	if (peek(p).type == TOKEN_LBRACE) {
@@ -391,49 +431,12 @@ static struct node *parse_stmt(struct parser *p)
 		advance(p);
 		expect(p, TOKEN_SEMI);
 		return parent;
+	} else if (peek(p).type == TOKEN_INT || peek(p).type == TOKEN_BOOL) {
+		return parse_decl(p);
 	} else {
-		enum token_type tt = peek(p).type;
-		if (tt == TOKEN_INT || tt == TOKEN_BOOL) {
-			advance(p);                                                                         
-		} else {
-			struct node *n = parse_expr(p, 0);
-			expect(p, TOKEN_SEMI);
-			return n;
-		}
-		char var_name[32];
-		if (peek(p).type != TOKEN_ID) {
-			fprintf(stderr, "parsing error\n");
-			exit(1);
-		}
-		strncpy(var_name, peek(p).name, MAX_ID_LEN - 1);
-		var_name[MAX_ID_LEN - 1] = '\0';
-		expect(p, TOKEN_ID);
-		enum data_type dt;
-		if (tt == TOKEN_INT) {
-			dt = DTYPE_INT;
-		} else {
-			dt = DTYPE_BOOL;
-		}
-		symtable_store(&p->symtable, var_name, dt);
-		struct token t = advance(p);
-		if (t.type == TOKEN_SEMI) {
-			return NULL;
-		} else if (t.type == TOKEN_ASSIGN) {
-			struct node *parent = node_create(2, NODE_BIN);
-			parent->children_num = 2;
-			parent->d_type = dt;
-			strcpy(parent->op, "=");
-			parent->children[0] = node_create(0, NODE_VAR_NAME);
-			strcpy(parent->children[0]->name, var_name);
-			parent->children[0]->id = symtable_load(&p->symtable, var_name).id;
-			parent->children[0]->d_type = dt;
-			parent->children[1] = parse_expr(p, 0);
-			expect(p, TOKEN_SEMI);
-			return parent;
-		} else {
-			fprintf(stderr, "parsing error\n");
-			exit(1);
-		}
+		struct node *n = parse_expr(p, 0);
+		expect(p, TOKEN_SEMI);
+		return n;
 	}
 }
 
