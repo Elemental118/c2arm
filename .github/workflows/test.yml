@@ -7,7 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Install ARM64 toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu qemu-user
       - name: create
         run:  make
-      - name: test
-        run:  ./run_tests.sh
+      - name: Run tests
+        env:
+          CC: aarch64-linux-gnu-gcc
+          RUNNER: qemu-aarch64
+        run: ./run_tests.sh

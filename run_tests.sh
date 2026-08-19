@@ -1,15 +1,18 @@
 #!/bin/bash
 
+CC="${CC:-aarch64-unknown-linux-gnu-gcc}"
+RUNNER="${RUNNER:-hl}"
+
 set -e
 
 make
-aarch64-unknown-linux-gnu-gcc -c tests/_start.s -o tests/_start.o
+$CC -c tests/_start.s -o tests/_start.o
 for input in tests/inputs/*.c; do
     input=$(basename $input .c)
     ./compiler tests/inputs/$input.c > tests/test.s
-    aarch64-unknown-linux-gnu-gcc -c tests/test.s -o tests/test.o
-    aarch64-unknown-linux-gnu-gcc -nostdlib tests/_start.o tests/test.o -o tests/test
-    if ! hl tests/test; then 
+    $CC -c tests/test.s -o tests/test.o
+    $CC -nostdlib -static -no-pie tests/_start.o tests/test.o -o tests/test
+    if ! $RUNNER tests/test; then 
         echo ERROR $input.c
         rm tests/test
         rm tests/test.s
