@@ -618,9 +618,16 @@ static struct node *parse_cmpnd_stmt(struct parser *p)
 
 static struct node *parse_func_decl(struct parser *p)
 {
-	expect(p, TOKEN_VOID);
 	struct node *func = node_create(MAX_STMTS, NODE_FUNC);
-	func->d_type = DTYPE_VOID;
+	if (peek(p).type == TOKEN_VOID) {
+		func->d_type = DTYPE_VOID;
+		advance(p);
+	} else if (peek(p).type == TOKEN_INT) {
+		func->d_type = DTYPE_INT;
+		advance(p);
+	} else {
+		fprintf(stderr, "invalid return type");
+	}
 	strcpy(func->name, expect(p, TOKEN_ID).name);
 	expect(p, TOKEN_LPAREN);
 	expect(p, TOKEN_VOID);
