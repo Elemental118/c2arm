@@ -290,6 +290,8 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			codegen_jmp(cg, instr);
 			break;
 		case INSTR_LABEL:
+			codegen_label(cg, instr, false);
+			break;
 		case INSTR_FUNC_START:
 			codegen_label(cg, instr, true);
 			break;
