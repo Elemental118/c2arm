@@ -367,8 +367,27 @@ static struct node *parse_for(struct parser *p)
 	return parent;
 }
 
-static struct node *parse_block(struct parser *p);
+static struct node *parse_brk(struct parser *p)
+{
+	expect(p, TOKEN_BRK);
+	struct node *n = node_create(0, NODE_BRK);
+	expect(p, TOKEN_SEMI);
+	return n;
+}
 
+static struct node *parse_cont(struct parser *p)
+{
+	expect(p, TOKEN_CONT);
+	struct node *n = node_create(0, NODE_CONT);
+	expect(p, TOKEN_SEMI);
+	return n;
+}
+
+/*
+ * Per N3220:
+ * (simplified) A declaration is a type keyword followed by a variable name and optionally followed by an equals sign and expression.
+ * It is always terminated with a semicolon.
+*/
 static struct node *parse_decl(struct parser *p)
 {
 	enum token_type tt = peek(p).type;
@@ -409,43 +428,131 @@ static struct node *parse_decl(struct parser *p)
 	}
 }
 
-static struct node *parse_stmt(struct parser *p)
+/*
+ * Per N3220:
+ * An expression statement is either a null statement or an expression followed by a semicolon.
+*/
+static struct node *parse_expr_stmt(struct parser *p)
 {
-	if (peek(p).type == TOKEN_LBRACE) {
-		return parse_block(p);
-	} else if (peek(p).type == TOKEN_IF) {
-		return parse_if(p);
-	} else if (peek(p).type == TOKEN_WHILE) {
-		return parse_while(p);
-	} else if (peek(p).type == TOKEN_DO) {
-		return parse_do(p);
-	} else if (peek(p).type == TOKEN_FOR) {
-		return parse_for(p);
-	} else if (peek(p).type == TOKEN_BRK) {
-		struct node *parent = node_create(0, NODE_BRK);
+	if (peek(p).type == TOKEN_SEMI) {
 		advance(p);
-		expect(p, TOKEN_SEMI);
-		return parent;
-	} else if (peek(p).type == TOKEN_CONT) {
-		struct node *parent = node_create(0, NODE_CONT);
-		advance(p);
-		expect(p, TOKEN_SEMI);
-		return parent;
-	} else {
-		struct node *n = parse_expr(p, 0);
-		expect(p, TOKEN_SEMI);
-		return n;
+		return NULL;
 	}
-}
-
-static struct node *parse_unlabeled_stmt(struct parser *p)
-{
-	return parse_stmt(p);
+	struct node *n = parse_expr(p, 0);
+	expect(p, TOKEN_SEMI);
+	return n;
 }
 
 /*
  * Per N3220:
- * A block item is either a declaration, unlabeled statement, or label.
+ * A selection statement is an if, an if/else, or a switch statement.
+ * SWITCH NOT YET SUPPORTED
+*/
+static struct node *parse_sel_stmt(struct parser *p)
+{
+	switch (peek(p).type) {
+	case TOKEN_IF:
+		return parse_if(p);
+	default:
+		fprintf(stderr, "parsing error");
+		exit(1);
+	}
+}
+
+/*
+ * Per N3220:
+ * An iteration statement is a while, a do/while, or a for loop.
+*/
+static struct node *parse_iter_stmt(struct parser *p)
+{
+	switch(peek(p).type) {
+	case TOKEN_WHILE:
+		return parse_while(p);
+	case TOKEN_DO:
+		return parse_do(p);
+	case TOKEN_FOR:
+		return parse_for(p);
+	default:
+		fprintf(stderr, "parsing error");
+		exit(1);
+	}
+}
+
+static struct node *parse_cmpnd_stmt(struct parser *p);
+
+/*
+ * Per N3220:
+ * A primary block is a selection statement, an iteration statement, or a compound statement.
+*/
+static struct node *parse_prim_block(struct parser *p)
+{
+	switch (peek(p).type) {
+	case TOKEN_IF:
+		return parse_sel_stmt(p);
+	case TOKEN_WHILE:
+	case TOKEN_DO:
+	case TOKEN_FOR:
+		return parse_iter_stmt(p);
+	case TOKEN_LBRACE:
+		return parse_cmpnd_stmt(p);
+	default:
+		fprintf(stderr, "parsing error");
+		exit(1);
+	}
+}
+
+/*
+ * Per N3220:
+ * A primary block is a goto statement, a break statement, a continue statement, or a return statement.
+ * GOTO AND RETURN NOT YET SUPPORTED
+*/
+static struct node *parse_jmp_stmt(struct parser *p)
+{
+	switch (peek(p).type) {
+	case TOKEN_BRK:
+		return parse_brk(p);
+	case TOKEN_CONT:
+		return parse_cont(p);
+	default:
+		fprintf(stderr, "parsing error");
+		exit(1);
+	}
+}
+
+/*
+ * Per N3220:
+ * An unlabeled statement is a primary block, a jump statement, or an expression statement.
+*/
+static struct node *parse_unlabeled_stmt(struct parser *p)
+{
+	switch (peek(p).type) {
+	case TOKEN_IF:
+	case TOKEN_WHILE:
+	case TOKEN_DO:
+	case TOKEN_FOR:
+	case TOKEN_LBRACE:
+		return parse_prim_block(p);
+	case TOKEN_CONT:
+	case TOKEN_BRK:
+		return parse_jmp_stmt(p);
+	default:
+		return parse_expr_stmt(p);
+	}
+}
+
+/*
+ * Per N3220:
+ * A statement is either a labeled statement or unlabeled statement.
+ * LABELED STATEMENTS NOT YET SUPPORTED
+*/
+static struct node *parse_stmt(struct parser *p)
+{
+	return parse_unlabeled_stmt(p);
+}
+
+/*
+ * Per N3220:
+ * A block item is a declaration, an unlabeled statement, or a label.
  * LABELS NOT YET SUPPORTED
 */
 static struct node *parse_block_item(struct parser *p)
@@ -459,7 +566,11 @@ static struct node *parse_block_item(struct parser *p)
 	}
 }
 
-static struct node *parse_block(struct parser *p)
+/*
+ * Per N3220:
+ * A compound statement is a list of block items.
+*/
+static struct node *parse_cmpnd_stmt(struct parser *p)
 {
 	struct node *block = node_create(MAX_STMTS, NODE_BLOCK);
 	expect(p, TOKEN_LBRACE);
@@ -493,7 +604,7 @@ static struct node *parse_func_decl(struct parser *p)
 	}
 
 	func->children_num = 1;
-	func->children[0] = parse_block(p);
+	func->children[0] = parse_cmpnd_stmt(p);
 	return func;
 }
 
