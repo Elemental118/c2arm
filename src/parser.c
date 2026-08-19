@@ -350,6 +350,8 @@ static struct node *parse_do(struct parser *p)
 	return parent;
 }
 
+static struct node *parse_decl(struct parser *p);
+
 static struct node *parse_for(struct parser *p)
 {
 	struct node *parent = node_create(4, NODE_FOR);
@@ -357,7 +359,12 @@ static struct node *parse_for(struct parser *p)
 	expect(p, TOKEN_FOR);
 	expect(p, TOKEN_LPAREN);
 	sym_stack_push(&p->symtable);
-	parent->children[0] = parse_stmt(p);
+	if (peek(p).type == TOKEN_INT || peek(p).type == TOKEN_BOOL) {
+		parent->children[0] = parse_decl(p);
+	} else {
+		parent->children[0] = parse_expr(p, 0);
+		expect(p, TOKEN_SEMI);
+	}
 	parent->children[1] = parse_expr(p, 0);
 	expect(p, TOKEN_SEMI);
 	parent->children[2] = parse_expr(p, 0);
