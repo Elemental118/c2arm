@@ -476,6 +476,13 @@ void ir_print(struct instr *ir)
 			printf("%s:\n", ir[i].dest_name);
 			break;
 		
+		case INSTR_RET:
+			printf("    RET");
+			if (!strcmp(ir[i].op, "r")) {
+				printf(" %s", ir[i].op1.name);
+			}
+			printf("\n");
+			break;
 		
 		case INSTR_FUNC_START:
 			printf("%s FUNC %s\n", ir[i].d_type == DTYPE_INT ? "INT" : "VOID", ir[i].dest_name);
