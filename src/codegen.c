@@ -229,8 +229,15 @@ static void codegen_jmp(struct codegen *cg, struct instr *instr)
 	}	
 }
 
-static void codegen_label(struct codegen *cg, struct instr *instr)
+static void codegen_label(struct codegen *cg, struct instr *instr, bool global)
 {
+	if (global) {
+		if (cg->pos == MAX_ASM_INSTRS) {
+			fprintf(stderr, "too many assembly instructions\n");
+			exit(1);
+		}
+		sprintf(cg->assembly[cg->pos++], ".global %s", instr->dest_name);
+	}
 	if (cg->pos == MAX_ASM_INSTRS) {
 		fprintf(stderr, "too many assembly instructions\n");
 		exit(1);
@@ -284,7 +291,7 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			break;
 		case INSTR_LABEL:
 		case INSTR_FUNC_START:
-			codegen_label(cg, instr);
+			codegen_label(cg, instr, true);
 			break;
 		case INSTR_FUNC_END:
 			break;
