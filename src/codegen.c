@@ -10,6 +10,7 @@
 #define MAX_ASM_INSTR_LEN 33
 #define MAX_REGS 20
 #define REGS_BEGIN 9
+#define STACK_SLOTS 1024
 
 struct reg {
 	char var_name[32];
@@ -229,6 +230,37 @@ static void codegen_jmp(struct codegen *cg, struct instr *instr)
 	}	
 }
 
+static void codegen_prologue(struct codegen *cg)
+{
+	if (cg->pos == MAX_ASM_INSTRS - 1) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	if ((STACK_SLOTS * 8) % 4096 != 0) {
+		fprintf(stderr, "illegal stack slot count\n");
+		exit(1);
+	}	
+	sprintf(cg->assembly[cg->pos++], "\t%-7ssp, sp, #%d", "sub", STACK_SLOTS * 8);
+	sprintf(cg->assembly[cg->pos++], "\t%-7sx29, x30, [sp]", "stp");
+	sprintf(cg->assembly[cg->pos++], "\t%-7sx29, sp", "mov");
+}
+
+static void codegen_epilogue(struct codegen *cg)
+{
+	if (cg->pos == MAX_ASM_INSTRS - 1) {
+		fprintf(stderr, "too many assembly instructions\n");
+		exit(1);
+	}
+	if ((STACK_SLOTS * 8) % 4096 != 0){
+		fprintf(stderr, "illegal stack slot count\n");
+		exit(1);
+	}	
+	sprintf(cg->assembly[cg->pos++], "\t%-7sx29, x30, [sp]", "ldp");
+	sprintf(cg->assembly[cg->pos++], "\t%-7ssp, sp, #%d", "add", STACK_SLOTS * 8);
+	strcpy(cg->assembly[cg->pos++], "\tret");
+}
+
+
 static void codegen_label(struct codegen *cg, struct instr *instr, bool global)
 {
 	if (global) {
@@ -271,7 +303,7 @@ static void codegen_ret(struct codegen *cg, struct instr *instr)
 		fprintf(stderr, "too many assembly instructions\n");
 		exit(1);
 	}
-	strcpy(cg->assembly[cg->pos++], "\tret");
+	codegen_epilogue(cg);
 }
 
 void codegen_prog(struct codegen *cg, struct instr *ir)
@@ -294,6 +326,7 @@ void codegen_prog(struct codegen *cg, struct instr *ir)
 			break;
 		case INSTR_FUNC_START:
 			codegen_label(cg, instr, true);
+			codegen_prologue(cg);
 			break;
 		case INSTR_FUNC_END:
 			break;
