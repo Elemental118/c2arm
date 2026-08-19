@@ -315,6 +315,25 @@ static void irgen_loop_cntl(struct irgen *irg, struct node *n)
 	snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", n->n_type == NODE_CONT ? labels.cont : labels.brk);
 }
 
+static void irgen_ret(struct irgen *irg, struct node *n)
+{
+	struct operand ret_val;
+	if (n->children) {
+		ret_val = irgen_expr(irg, n->children[0]);
+	}
+	if (irg->pos == MAX_INSTRS) {
+		fprintf(stderr, "too many IR instructions\n");
+		exit(1);
+	}
+	if (n->children) {
+		irg->instrs[irg->pos].op1 = ret_val;
+		strcpy(irg->instrs[irg->pos].op, "r");
+	} else {
+		strcpy(irg->instrs[irg->pos].op, "v");
+	}
+	irg->instrs[irg->pos++].i_type = INSTR_RET;
+}
+
 static void irgen_block(struct irgen *irg, struct node *n);
 
 static void irgen_stmt(struct irgen *irg, struct node *n)
@@ -337,10 +356,13 @@ static void irgen_stmt(struct irgen *irg, struct node *n)
 	} else if (n->n_type == NODE_BRK) {
 		irgen_loop_cntl(irg, n);
 		return;
-	}else if (n->n_type == NODE_CONT) {
+	} else if (n->n_type == NODE_CONT) {
 		irgen_loop_cntl(irg, n);
 		return;
-	}else {
+	} else if (n->n_type == NODE_RET) {
+		irgen_ret(irg, n);
+		return;
+	} else {
 		irgen_expr(irg, n);
 	}
 	

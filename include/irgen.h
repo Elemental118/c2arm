@@ -21,6 +21,7 @@ enum instr_type {
 	INSTR_LABEL,
 	INSTR_FUNC_START,
 	INSTR_FUNC_END,
+	INSTR_RET,
 	INSTR_EOF
 };
 
