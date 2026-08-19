@@ -49,6 +49,7 @@ enum token_type {
 	TOKEN_CASE,
 	TOKEN_DEFAULT,
 	TOKEN_GOTO,
+	TOKEN_RET,
 
 	// MISC
 	TOKEN_ASSIGN,

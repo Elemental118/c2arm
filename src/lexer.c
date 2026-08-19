@@ -49,6 +49,7 @@ static const char *token_names[] = {
 	[TOKEN_CASE] = "CASE",
 	[TOKEN_DEFAULT] = "DEFAULT",
 	[TOKEN_GOTO] = "GOTO",
+	[TOKEN_RET] = "RET",
 	[TOKEN_ASSIGN] = "ASSIGN",
 	[TOKEN_ID] = "ID",
 	[TOKEN_INT_LIT] = "INT_LIT",
@@ -252,6 +253,8 @@ struct token next_token(struct lexer *l)
 			t.type = TOKEN_DEFAULT;
 		} else if (!strcmp(t.name, "goto")) {
 			t.type = TOKEN_GOTO;
+		} else if (!strcmp(t.name, "return")) {
+			t.type = TOKEN_RET;
 		} else {
 			t.type = TOKEN_ID;
 		}
