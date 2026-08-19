@@ -22,6 +22,7 @@ static const char *token_names[] = {
 	[TOKEN_LBRACE] = "LBRACE",
 	[TOKEN_RBRACE] = "RBRACE",
 	[TOKEN_SEMI] = "SEMI",
+	[TOKEN_COL] = "COL",
 	[TOKEN_PLUS] = "PLUS",
 	[TOKEN_MINUS] = "MINUS",
 	[TOKEN_STAR] = "STAR",
@@ -160,6 +161,10 @@ struct token next_token(struct lexer *l)
 	
 	case ';':
 		t.type = TOKEN_SEMI;
+		break;
+	
+	case ':':
+		t.type = TOKEN_COL;
 		break;
 	
 	case '=':

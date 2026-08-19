@@ -18,6 +18,7 @@ enum token_type {
 	TOKEN_LBRACE,
 	TOKEN_RBRACE,
 	TOKEN_SEMI,
+	TOKEN_COL,
 
 	// OPERATORS
 	TOKEN_PLUS,
