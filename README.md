@@ -11,7 +11,8 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 * `if`/`else` statements with and without blocks
 * `while`, `do`/`while`, and `for` loops with and without blocks
 * `break`/`continue` in `while`, `do`/`while`, and `for`
-* `void`/`void` functions (uncallable)
+* `void`/`void` and `int/void` functions (uncallable)
+* `return` that can stand on its own or take an expression
 * Single `.c` file, no libraries or headers
 
 ## Design Philosophy
@@ -29,4 +30,4 @@ qemu-aarch64 ./out
 to get the same result.
 
 ## Note on AI usage
-This code was written wholly and completely by the author of this repository. Anthropic's Claude was quite helpful for  debugging and research, but never to write any of the code in this repository.
+This code was written wholly and completely by the author of this repository. Anthropic's Claude was quite helpful for debugging and research, but never to write any of the code in this repository, with the exception of the test cases.
