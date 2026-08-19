@@ -18,6 +18,7 @@ enum node_type {
 	NODE_FOR,
 	NODE_BRK,
 	NODE_CONT,
+	NODE_RET,
 	NODE_VAR_NAME
 };
 

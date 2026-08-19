@@ -390,6 +390,23 @@ static struct node *parse_cont(struct parser *p)
 	return n;
 }
 
+static struct node *parse_ret(struct parser *p)
+{
+	expect(p, TOKEN_RET);
+	if (peek(p).type == TOKEN_SEMI) {
+		struct node *n = node_create(0, NODE_RET);
+		n->d_type = DTYPE_VOID;
+		advance(p);
+		return n;
+	}
+	struct node *n = node_create(1, NODE_RET);
+	n->children_num = 1;
+	n->children[0] = parse_expr(p, 0);
+	n->d_type = n->children[0]->d_type;
+	expect(p, TOKEN_SEMI);
+	return n;
+}
+
 /*
  * Per N3220:
  * (simplified) A declaration is a type keyword followed by a variable name and optionally followed by an equals sign and expression.
@@ -511,7 +528,7 @@ static struct node *parse_prim_block(struct parser *p)
 /*
  * Per N3220:
  * A primary block is a goto statement, a break statement, a continue statement, or a return statement.
- * GOTO AND RETURN NOT YET SUPPORTED
+ * GOTO NOT YET SUPPORTED
 */
 static struct node *parse_jmp_stmt(struct parser *p)
 {
@@ -520,6 +537,8 @@ static struct node *parse_jmp_stmt(struct parser *p)
 		return parse_brk(p);
 	case TOKEN_CONT:
 		return parse_cont(p);
+	case TOKEN_RET:
+		return parse_ret(p);
 	default:
 		fprintf(stderr, "parsing error");
 		exit(1);
@@ -539,8 +558,9 @@ static struct node *parse_unlabeled_stmt(struct parser *p)
 	case TOKEN_FOR:
 	case TOKEN_LBRACE:
 		return parse_prim_block(p);
-	case TOKEN_CONT:
 	case TOKEN_BRK:
+	case TOKEN_CONT:
+	case TOKEN_RET:
 		return parse_jmp_stmt(p);
 	default:
 		return parse_expr_stmt(p);
