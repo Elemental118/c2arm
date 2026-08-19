@@ -172,7 +172,7 @@ static void switch_recurse(struct irgen *irg, struct node *n, struct s_case *cas
 
 static void irgen_switch(struct irgen *irg, struct node *n)
 {
-	if (irg->pos == MAX_LOOPS_NESTED) {
+	if (irg->label_stack_pos == MAX_LOOPS_NESTED) {
 		fprintf(stderr, "too many nested loops\n");
 		exit(1);
 	}
@@ -239,7 +239,7 @@ static void irgen_switch(struct irgen *irg, struct node *n)
 
 static void irgen_while(struct irgen *irg, struct node *n)
 {
-	if (irg->pos == MAX_LOOPS_NESTED) {
+	if (irg->label_stack_pos == MAX_LOOPS_NESTED) {
 		fprintf(stderr, "too many nested loops\n");
 		exit(1);
 	}
@@ -287,7 +287,7 @@ static void irgen_while(struct irgen *irg, struct node *n)
 
 static void irgen_do(struct irgen *irg, struct node *n)
 {
-	if (irg->pos == MAX_LOOPS_NESTED) {
+	if (irg->label_stack_pos == MAX_LOOPS_NESTED) {
 		fprintf(stderr, "too many nested loops\n");
 		exit(1);
 	}
@@ -336,7 +336,7 @@ static void irgen_do(struct irgen *irg, struct node *n)
 
 static void irgen_for(struct irgen *irg, struct node *n)
 {
-	if (irg->pos == MAX_LOOPS_NESTED) {
+	if (irg->label_stack_pos == MAX_LOOPS_NESTED) {
 		fprintf(stderr, "too many nested loops\n");
 		exit(1);
 	}
