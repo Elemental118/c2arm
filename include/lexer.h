@@ -4,6 +4,8 @@
 #define MAX_ID_LEN 32
 #define MAX_TOKENS 100
 
+extern const char *token_names[];
+
 enum token_type {
 	TOKEN_ERR,
 

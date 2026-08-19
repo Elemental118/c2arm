@@ -12,7 +12,7 @@ struct lexer {
 	int pos;
 };
 
-static const char *token_names[] = {
+const char *token_names[] = {
 	[TOKEN_ERR] = "ERR",
 	[TOKEN_INT] = "INT",
 	[TOKEN_BOOL] = "BOOL",
