@@ -2,7 +2,7 @@
 #define LEXER_H
 
 #define MAX_ID_LEN 32
-#define MAX_TOKENS 100
+#define MAX_TOKENS 10000
 
 extern const char *token_names[];
 
