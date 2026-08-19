@@ -51,7 +51,7 @@ static struct token expect(struct parser *p, enum token_type t)
 	if (peek(p).type == t) {
 		return advance(p);
 	} else {
-		fprintf(stderr, "parsing error\n");
+		fprintf(stderr, "parsing error: expected %s, got %s\n", token_names[t], token_names[peek(p).type]);
 		exit(1);
 	}
 }
@@ -165,7 +165,7 @@ struct node *parse_primary(struct parser *p)
 		n->d_type = var_sym.type;
 		n->id = var_sym.id;
 	} else {
-		fprintf(stderr, "parsing error\n");
+		fprintf(stderr, "parsing error: unrecognized fundamental construct\n");
 		exit(1);
 	}
 	return n;
@@ -459,7 +459,7 @@ static struct node *parse_decl(struct parser *p)
 		expect(p, TOKEN_SEMI);
 		return parent;
 	} else {
-		fprintf(stderr, "parsing error\n");
+		fprintf(stderr, "parsing error: unrecognized initializer\n");
 		exit(1);
 	}
 }
@@ -491,7 +491,7 @@ static struct node *parse_sel_stmt(struct parser *p)
 	case TOKEN_SWITCH:
 		return parse_switch(p);
 	default:
-		fprintf(stderr, "parsing error");
+		fprintf(stderr, "parsing error: unrecognized selection statement\n");
 		exit(1);
 	}
 }
@@ -510,7 +510,7 @@ static struct node *parse_iter_stmt(struct parser *p)
 	case TOKEN_FOR:
 		return parse_for(p);
 	default:
-		fprintf(stderr, "parsing error");
+		fprintf(stderr, "parsing error: unrecognized iteration statement\n");
 		exit(1);
 	}
 }
@@ -534,7 +534,7 @@ static struct node *parse_prim_block(struct parser *p)
 	case TOKEN_LBRACE:
 		return parse_cmpnd_stmt(p);
 	default:
-		fprintf(stderr, "parsing error");
+		fprintf(stderr, "parsing error: unrecognized primary block\n");
 		exit(1);
 	}
 }
@@ -554,7 +554,7 @@ static struct node *parse_jmp_stmt(struct parser *p)
 	case TOKEN_RET:
 		return parse_ret(p);
 	default:
-		fprintf(stderr, "parsing error");
+		fprintf(stderr, "parsing error: unrecognized jump statement\n");
 		exit(1);
 	}
 }
