@@ -431,12 +431,26 @@ static struct node *parse_stmt(struct parser *p)
 		advance(p);
 		expect(p, TOKEN_SEMI);
 		return parent;
-	} else if (peek(p).type == TOKEN_INT || peek(p).type == TOKEN_BOOL) {
-		return parse_decl(p);
 	} else {
 		struct node *n = parse_expr(p, 0);
 		expect(p, TOKEN_SEMI);
 		return n;
+	}
+}
+
+/*
+ * Per N3220:
+ * A block item is either a declaration, unlabeled statement, or label.
+ * LABELS NOT YET SUPPORTED
+*/
+static struct node *parse_block_item(struct parser *p)
+{
+	switch (peek(p).type) {
+	case TOKEN_INT:
+	case TOKEN_BOOL:
+		return parse_decl(p);
+	default:
+		return parse_stmt(p);
 	}
 }
 
@@ -446,7 +460,7 @@ static struct node *parse_block(struct parser *p)
 	expect(p, TOKEN_LBRACE);
 	sym_stack_push(&p->symtable);
 	for (int i = 0; peek(p).type != TOKEN_RBRACE; i++) {
-		struct node *n = parse_stmt(p);
+		struct node *n = parse_block_item(p);
 		if (!n) {
 			i--;
 		} else {
