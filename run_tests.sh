@@ -13,6 +13,7 @@ trap '
     fi
 ' EXIT
 
+make clean
 make
 $CC -c tests/_start.s -o tests/_start.o
 for input in tests/inputs/*.c; do
