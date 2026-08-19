@@ -573,11 +573,14 @@ void ir_print(struct instr *ir)
 			break;
 		
 		case INSTR_JMP:
-			printf("    %s %s %s, ", "JMP", ir[i].op, ir[i].dest_name);
-			if (ir[i].op1.kind == OPERAND_LITERAL) {
-				printf("%d", ir[i].op1.val);
-			} else {
-				printf("%s", ir[i].op1.name);
+			printf("    %s %s %s", "JMP", ir[i].op, ir[i].dest_name);
+			if (strcmp(ir[i].op, "j")) {
+				printf(", ");
+				if (ir[i].op1.kind == OPERAND_LITERAL) {
+					printf("%d", ir[i].op1.val);
+				} else {
+					printf("%s", ir[i].op1.name);
+				}
 			}
 			printf("\n");
 			break;
