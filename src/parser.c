@@ -559,6 +559,38 @@ static struct node *parse_jmp_stmt(struct parser *p)
 	}
 }
 
+static struct node *parse_label(struct parser *p)
+{
+	struct node *n;
+	switch (peek(p).type) {
+	case TOKEN_CASE:
+		n = node_create(1, NODE_CASE);
+		n->children_num = 1;
+		advance(p);
+		n->children[0] = parse_expr(p, 0);
+		expect(p, TOKEN_COL);
+		return n;
+	
+	case TOKEN_DEFAULT:
+		n = node_create(0, NODE_DEFAULT);
+		advance(p);
+		expect(p, TOKEN_COL);
+		return n;
+	
+	default:
+		fprintf(stderr, "invalid label\n");
+		exit(1);
+	}
+}
+
+static struct node *parse_labeled_stmt(struct parser *p)
+{
+	struct node *label = parse_label(p);
+	label->children = realloc(label->children, ++label->children_num * sizeof(*label->children));
+	label->children[label->children_num - 1] = parse_stmt(p);
+	return label;
+}
+
 /*
  * Per N3220:
  * An unlabeled statement is a primary block, a jump statement, or an expression statement.
@@ -585,34 +617,15 @@ static struct node *parse_unlabeled_stmt(struct parser *p)
 /*
  * Per N3220:
  * A statement is either a labeled statement or unlabeled statement.
- * LABELED STATEMENTS NOT YET SUPPORTED
 */
 static struct node *parse_stmt(struct parser *p)
 {
-	return parse_unlabeled_stmt(p);
-}
-
-static struct node *parse_label(struct parser *p)
-{
-	struct node *n;
 	switch (peek(p).type) {
 	case TOKEN_CASE:
-		n = node_create(1, NODE_CASE);
-		n->children_num = 1;
-		advance(p);
-		n->children[0] = parse_expr(p, 0);
-		expect(p, TOKEN_COL);
-		return n;
-	
 	case TOKEN_DEFAULT:
-		n = node_create(0, NODE_DEFAULT);
-		advance(p);
-		expect(p, TOKEN_COL);
-		return n;
-	
+		return parse_labeled_stmt(p);
 	default:
-		fprintf(stderr, "invalid label\n");
-		exit(1);
+		return parse_unlabeled_stmt(p);
 	}
 }
 
