@@ -686,7 +686,7 @@ static struct node *parse_cmpnd_stmt(struct parser *p)
 
 static struct node *parse_func_decl(struct parser *p)
 {
-	struct node *func = node_create(MAX_STMTS, NODE_FUNC);
+	struct node *func = node_create(1, NODE_FUNC);
 	if (peek(p).type == TOKEN_VOID) {
 		func->d_type = DTYPE_VOID;
 		advance(p);
