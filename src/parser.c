@@ -784,7 +784,7 @@ static void ast_print_helper(struct node *n, int depth)
 		printf("RET\n");
 		break;
 	case NODE_VAR_NAME:
-		printf("%s VAR %s\n", (n->d_type == DTYPE_VOID) ? "VOID" : "INT", n->name);
+		printf("%s VAR %s\n", (n->d_type == DTYPE_BOOL) ? "BOOL" : "INT", n->name);
 		break;
 	case NODE_INT_LIT:
 		printf("INT %d\n", n->val);
