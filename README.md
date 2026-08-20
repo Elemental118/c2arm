@@ -5,8 +5,8 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 * Bare and merged `int`/`bool` declarations, plus reassignment to `int`/`bool` literal or variable
 * All unary int to int (`-`, `~`) and bool to int (`!`) operators with no parentheses
 * All binary int to int operators (`+`, `-`, `*`, `/`, `&`, `|`, `^`, `%`) with no parentheses
-* `&&`/`||` as int to bool operators with short-circuiting
-* All comparison bool to int operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
+* `&&`/`||` as bool to int operators with short-circuiting
+* All comparison int to bool operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
 * `=` as a first-class operator with return value
 * Blocks (`{}`) with proper variable scoping/shadowing
 * `if`/`else` statements with and without blocks
@@ -21,15 +21,7 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 As this is a teaching tool, modularity is valued over speed. Everything is designed to make the full pipeline of a C compiler incredibly clear!
 
 ## How to Run
-`make` runs the `Makefile`, and `./compiler file.c` will run it.
-
-To execute the program, simple type `./out`. If not on Linux ARM64, run
-
-``` bash
-qemu-aarch64 ./out
-```
-
-to get the same result.
+`make` runs the `Makefile`, and `./compiler file.c` will generate assembly!
 
 ## Note on AI usage
 This code was written wholly and completely by the author of this repository. Anthropic's Claude was quite helpful for debugging and research, but never to write any of the code in this repository, with the exception of the test cases.
