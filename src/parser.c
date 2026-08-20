@@ -119,6 +119,10 @@ int get_precedence(enum token_type tt)
 	switch (tt) {
 	case TOKEN_ASSIGN:
 		return 1;
+	case TOKEN_LOR:
+		return 4;
+	case TOKEN_LAND:
+		return 4;
 	case TOKEN_PIPE:
 		return 5;
 	case TOKEN_XOR:
@@ -258,6 +262,16 @@ struct node *parse_expr(struct parser *p, int prec_min)
 		
 		case TOKEN_XOR:
 			strcpy(left->op, "^");
+			left->d_type = DTYPE_INT;
+			break;
+		
+		case TOKEN_LAND:
+			strcpy(left->op, "&&");
+			left->d_type = DTYPE_INT;
+			break;
+		
+		case TOKEN_LOR:
+			strcpy(left->op, "||");
 			left->d_type = DTYPE_INT;
 			break;
 		
