@@ -69,7 +69,7 @@ static struct operand irgen_expr(struct irgen *irg, struct node *n)
 		irg->instrs[irg->pos].d_type = n->d_type;
 		strcpy(irg->instrs[irg->pos].op, n->op);
 		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", irg->tmp_count++);
-	} else if (n->n_type == NODE_BIN && strcmp(n->op, "=")) {
+	} else if (n->n_type == NODE_BIN && strcmp(n->op, "=") && strcmp(n->op, "&&") && strcmp(n->op, "||")) {
 		op.kind = OPERAND_NAME;
 		struct operand left = irgen_expr(irg, n->children[0]);
 		struct operand right = irgen_expr(irg, n->children[1]);
@@ -86,6 +86,70 @@ static struct operand irgen_expr(struct irgen *irg, struct node *n)
 		irg->instrs[irg->pos].d_type = n->d_type;
 		strcpy(irg->instrs[irg->pos].op, n->op);
 		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", irg->tmp_count++);
+	} else if (n->n_type == NODE_BIN && strcmp(n->op, "=")) {
+		op.kind = OPERAND_NAME;
+		struct operand left = irgen_expr(irg, n->children[0]);
+		int temp = irg->tmp_count++;
+		int short_circuit = irg->label_count++;
+		int end = irg->label_count++;
+		sprintf(op.name, "t%d", temp);
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].op1 = left;
+		irg->instrs[irg->pos].i_type = INSTR_JMP;
+		strcpy(irg->instrs[irg->pos].op, !strcmp(n->op, "&&") ? "f" : "t");
+		snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", short_circuit);
+
+		struct operand right = irgen_expr(irg, n->children[1]);
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].op1 = left;
+		irg->instrs[irg->pos].op2 = right;
+		irg->instrs[irg->pos].i_type = INSTR_BIN;
+		irg->instrs[irg->pos].d_type = n->d_type;
+		strcpy(irg->instrs[irg->pos].op, !strcmp(n->op, "&&") ? "&" : "|");
+		sprintf(irg->instrs[irg->pos++].dest_name, "t%d", temp);
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].i_type = INSTR_JMP;
+		strcpy(irg->instrs[irg->pos].op, "j");
+		snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].i_type = INSTR_LABEL;
+		snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", short_circuit);
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].op1.d_type = DTYPE_INT;
+		irg->instrs[irg->pos].op1.kind = OPERAND_LITERAL;
+		irg->instrs[irg->pos].op1.val = !!strcmp(n->op, "&&");
+		irg->instrs[irg->pos].i_type = INSTR_ASSIGN;
+		irg->instrs[irg->pos].d_type = DTYPE_INT;
+		snprintf(irg->instrs[irg->pos].dest_name, MAX_ID_LEN, "t%d", temp);
+		op.kind = OPERAND_NAME;
+		strcpy(op.name, irg->instrs[irg->pos++].dest_name);
+
+		if (irg->pos == MAX_INSTRS) {
+			fprintf(stderr, "too many IR instructions\n");
+			exit(1);
+		}
+		irg->instrs[irg->pos].i_type = INSTR_LABEL;
+		snprintf(irg->instrs[irg->pos++].dest_name, MAX_LABEL_LEN, "L%d", end);
+
 	} else if (n->n_type == NODE_BIN) {
 		struct operand right = irgen_expr(irg, n->children[1]);
 		if (irg->pos == MAX_INSTRS) {
