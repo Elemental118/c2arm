@@ -216,15 +216,17 @@ static void codegen_compute(struct codegen *cg, struct instr *instr)
 static void codegen_jmp(struct codegen *cg, struct instr *instr)
 {
 	char op1_reg[32];
-	if (instr->op1.kind == OPERAND_LITERAL) {
-		if (cg->pos == MAX_ASM_INSTRS) {
-			fprintf(stderr, "too many assembly instructions\n");
-			exit(1);
+	if (strcmp(instr->op, "j")) {
+		if (instr->op1.kind == OPERAND_LITERAL) {
+			if (cg->pos == MAX_ASM_INSTRS) {
+				fprintf(stderr, "too many assembly instructions\n");
+				exit(1);
+			}
+			strcpy(op1_reg, get_scratch(cg));
+			sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d", "mov", op1_reg, instr->op1.val);
+		} else {
+			strcpy(op1_reg, stack_load(cg, instr->op1.name));
 		}
-		strcpy(op1_reg, get_scratch(cg));
-		sprintf(cg->assembly[cg->pos++], "\t%-7s%s, #%d", "mov", op1_reg, instr->op1.val);
-	} else {
-		strcpy(op1_reg, stack_load(cg, instr->op1.name));
 	}
 
 	if (cg->pos == MAX_ASM_INSTRS) {
