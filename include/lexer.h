@@ -31,6 +31,8 @@ enum token_type {
 	TOKEN_AMP,
 	TOKEN_PIPE,
 	TOKEN_XOR,
+	TOKEN_LAND,
+	TOKEN_LOR,
 	TOKEN_LT,
 	TOKEN_GT,
 	TOKEN_LE,

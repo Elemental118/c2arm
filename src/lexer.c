@@ -31,6 +31,8 @@ const char *token_names[] = {
 	[TOKEN_AMP] = "AMP",
 	[TOKEN_PIPE] = "PIPE",
 	[TOKEN_XOR] = "XOR",
+	[TOKEN_LAND] = "LAND",
+	[TOKEN_LOR] = "LOR",
 	[TOKEN_LT] = "LT",
 	[TOKEN_GT] = "GT",
 	[TOKEN_LE] = "LE",
@@ -130,11 +132,21 @@ struct token next_token(struct lexer *l)
 		break;
 	
 	case '&':
-		t.type = TOKEN_AMP;
+		if (l->prog[l->pos + 1] == '&') {
+			l->pos++;
+			t.type = TOKEN_LAND;
+		} else {
+			t.type = TOKEN_AMP;
+		}
 		break;
 	
 	case '|':
-		t.type = TOKEN_PIPE;
+		if (l->prog[l->pos + 1] == '|') {
+			l->pos++;
+			t.type = TOKEN_LOR;
+		} else {
+			t.type = TOKEN_PIPE;
+		}
 		break;
 	
 	case '^':
