@@ -592,7 +592,11 @@ void ir_print(struct instr *ir)
 		case INSTR_RET:
 			printf("    RET");
 			if (!strcmp(ir[i].op, "r")) {
-				printf(" %s", ir[i].op1.name);
+				if (ir[i].op1.kind == OPERAND_NAME) {
+					printf(" %s", ir[i].op1.name);
+				} else {
+					printf(" %d", ir[i].op1.val);
+				}
 			}
 			printf("\n");
 			break;
