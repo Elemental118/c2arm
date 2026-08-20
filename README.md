@@ -3,12 +3,14 @@ A lightweight teaching-level C compiler targeting Linux ARM64!
 
 ## Currently Supports
 * Bare and merged `int`/`bool` declarations, plus reassignment to `int`/`bool` literal or variable
-* All unary int/int (`-`, `~`) and bool/int (`!`) operators with no parentheses
-* All binary int/int operators (`+`, `-`, `*`, `/`, `&`, `|`, `^`, `%`) with no parentheses
-* All comparison bool/int operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
+* All unary int to int (`-`, `~`) and bool to int (`!`) operators with no parentheses
+* All binary int to int operators (`+`, `-`, `*`, `/`, `&`, `|`, `^`, `%`) with no parentheses
+* `&&`/`||` as int to bool operators with short-circuiting
+* All comparison bool to int operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) with no parentheses
 * `=` as a first-class operator with return value
 * Blocks (`{}`) with proper variable scoping/shadowing
 * `if`/`else` statements with and without blocks
+* `switch`/`case`/`default` statements with and without blocks
 * `while`, `do`/`while`, and `for` loops with and without blocks
 * `break`/`continue` in `while`, `do`/`while`, and `for`
 * `void`/`void` and `int/void` functions (uncallable)
